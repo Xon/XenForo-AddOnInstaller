@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="AddOnInstaller" title="Add-on Installer" version_string="0.1" version_id="1" url="http://www.deemit.co.uk" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="AddOnInstaller" title="Add-on Installer" version_string="0.2" version_id="2" url="http://www.deemit.co.uk" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation>
     <navigation navigation_id="AddOnInstaller" parent_navigation_id="addOns" display_order="9999" link="add-ons/auto-install" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="AddOnUpgrader" parent_navigation_id="addOns" display_order="10000" link="add-ons/auto-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
@@ -29,7 +29,7 @@
     <template title="addon_upgrade_auto_selector"><![CDATA[<xen:title>{xen:phrase upgrade_add_on}: {$addOn.title}</xen:title>
 
 <select id="addon_select" class="textCtrl">
-    <option value="" selected>Choose an add-on</option>
+    <option value="" selected>{xen:phrase choose_an_add_on}</option>
 	<xen:foreach loop="$addOns" value="$addOnInf">
     	<option value="{xen:adminlink 'add-ons/auto-upgrade', $addOnInf.addon_id}">{$addOnInf.title}</option>
 	</xen:foreach>
@@ -66,6 +66,7 @@
   <phrases>
     <phrase title="admin_navigation_AddOnInstaller" version_id="1" version_string="0.1"><![CDATA[Add-on Installer]]></phrase>
     <phrase title="admin_navigation_AddOnUpgrader" version_id="1" version_string="0.1"><![CDATA[Add-on Upgrader]]></phrase>
+    <phrase title="choose_an_add_on" version_id="1" version_string="0.1"><![CDATA[Choose an add-on]]></phrase>
     <phrase title="no_upload_directory_found" version_id="1" version_string="0.1"><![CDATA[There is no upload directory found within this archive. This add-on does not support the Add-on Installer.]]></phrase>
     <phrase title="zip_file_could_not_be_opened" version_id="1" version_string="0.1"><![CDATA[The provided ZIP file could not be opened. Either the file is not a valid archive or some other read error occurred.]]></phrase>
   </phrases>
