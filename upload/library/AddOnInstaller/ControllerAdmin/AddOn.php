@@ -2,172 +2,465 @@
 
 class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_ControllerAdmin_AddOn
 {
-	public function actionAutoInstall()
+	public function actionInstallUpgrade()
 	{
+		$addOnModel = $this->_getAddOnModel();
+		
 		if ($this->isConfirmedPost())
 		{
 			$fileTransfer = new Zend_File_Transfer_Adapter_Http();
+			$resourceUrl = $this->_input->filterSingle('resource_url', XenForo_Input::STRING);
+			
+			$oldskool_upload = $fileTransfer->isUploaded('upload_file_oldskool');
+			$oldskool_server = $this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING);
+			
+			$installId = uniqid();
+			
+			$addToUpdates = false;
+			
+			if (!empty($oldskool_server) || $oldskool_upload)
+			{
+				if ($fileTransfer->isUploaded('upload_file_oldskool'))
+				{
+					$fileInfo = $fileTransfer->getFileInfo('upload_file_oldskool');
+					$fileName = $fileInfo['upload_file_oldskool']['tmp_name'];
+				}
+				else
+				{
+					$fileName = $this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING);
+				}
+				
+				$xmlDetails = $addOnModel->getXmlType($fileName);
+
+				$addOnExists = $addOnModel->getAddOnById($xmlDetails['addon_id']);			
+				if ($addOnExists)
+				{
+					$caches = $addOnModel->installAddOnXmlFromFile($fileName, $addOnExists['addon_id']);
+				}
+				else
+				{
+					$caches = $addOnModel->installAddOnXmlFromFile($fileName);
+				}
+				
+				return XenForo_CacheRebuilder_Abstract::getRebuilderResponse($this, $caches, XenForo_Link::buildAdminLink('add-ons'));
+			}
+							
+			$extractDirs = array();
 			if ($fileTransfer->isUploaded('upload_file'))
 			{
-				$fileInfo = $fileTransfer->getFileInfo('upload_file');
-				$fileName = $fileInfo['upload_file']['tmp_name'];
-			
-			}
-			$extractLocation = 'addon-prestage/' . preg_replace('/[^a-z0-9]/i', '_', $fileInfo['upload_file']['name']) . '/';
-			$zip = new ZipArchive;
-			$res = $zip->open($fileName);
-			if ($res === TRUE)
-			{
-				$zip->extractTo($extractLocation);
-				$zip->close();
-			}
-			else
-			{
-				return $this->responseError(new XenForo_Phrase('zip_file_could_not_be_opened'));
-			}			
-			$path = $extractLocation;
-			$results = scandir($path);
-			
-			foreach ($results as $result)
-			{
-				if ($result === '.' or $result === '..') continue;
-				if (is_dir($path . '/' . $result))
+				foreach ($fileTransfer->getFileInfo() AS $fileInfo)
 				{
-					if ($result !== 'upload')
+					if (empty($fileInfo['error'])) //verify no errors e.g. file not exist
 					{
-						if (is_dir($path . $result . '/upload'))
-						{							
-							$uploadDir = $path . $result . '/upload';
-							
-							$source = $uploadDir;
-							
-							$destination = '.';
-							
-							$this->_getAddOnModel()->addOnInstallerCopyFiles($source, $destination);							
-						}
-					}
-					elseif (is_dir($path . '/upload'))
-					{
-						$uploadDir = $path . '/upload';
-							
-						$source = $uploadDir;
-							
-						$destination = '.';
-							
-						$this->_getAddOnModel()->addOnInstallerCopyFiles($source, $destination);
+						$fileName = $fileInfo['tmp_name'];
+						
+						$extractDirs[] = $addOnModel->extractZip($fileName);
 					}
 				}
 			}
-			if(!isset($uploadDir))
+			elseif ($resourceUrl)
 			{
-				return $this->responseError(new XenForo_Phrase('no_upload_directory_found'));
+				$username = $this->_input->filterSingle('login', XenForo_Input::STRING);
+				$password = $this->_input->filterSingle('password', XenForo_Input::STRING);
+				$remember_me = $this->_input->filterSingle('cred_save', XenForo_Input::UINT);
+				
+				if ($username && $password && $remember_me)
+				{
+					$addOnModel->saveRmCredentials($username, $password);
+				}
+				
+				$options = XenForo_Application::get('options');
+				
+				if (!$username && !$password)
+				{
+					$username = $options->xenforoRmLoginUsername;
+					$password = $options->xenforoRmLoginPassword;
+					
+					if (!$username || !$password)
+					{
+						return $this->responseError(new XenForo_Phrase('login_to_xenforo_has_failed'));
+					}
+				}
+
+				$client = XenForo_Helper_Http::getClient('http://xenforo.com/community/login/login');
+				
+				$client->setCookieJar();
+				
+				$client->setParameterPost(array('login' => $username, 'password' => $password, 'redirect' => $resourceUrl));
+				
+				$login = $client->request('POST');
+				
+				$dom = new Zend_Dom_Query($login->getBody());
+				$loggedIn = $dom->query('html .LoggedIn');
+				
+				if (!$loggedIn->count())
+				{
+					return $this->responseError(new XenForo_Phrase('login_to_xenforo_has_failed'));
+				}
+				
+				$downloadButton = $dom->query('.downloadButton a');
+				
+				if (!$downloadButton->count())
+				{
+					return $this->responseError(new XenForo_Phrase('problem_accessing_resource_page'));
+				}
+				
+				$downloadUrl = $downloadButton->current()->getAttribute('href');
+				
+				if (!$addOnModel->isDownloadUrl($downloadUrl))
+				{
+					return $this->responseError(new XenForo_Phrase('no_download_url_found_maybe_paid'));
+				}				
+
+				$client->setUri('http://xenforo.com/community/' . $downloadUrl);
+				
+				mkdir('install/addons/' . $installId);
+				$fileName = 'install/addons/' . $installId . '/' . $installId . '.zip';
+				
+				$fp = fopen($fileName, 'w');
+				
+				fwrite($fp, $client->request('GET')->getRawBody());
+				fclose($fp);
+				
+				$extractDirs[] = $addOnModel->extractZip($fileName, 'install/addons', $installId);
+				
+				$addToUpdates = true;
 			}
+			
+			$caches = array();
+			foreach ($extractDirs AS $extractDir)
+			{
+				$fileList = $addOnModel->getFileListing($extractDir);
 				
-			$extractDir = scandir($extractLocation);
+				$xmlFiles = array();
+				$xmlFile = array();
+				foreach ($fileList AS $file)
+				{
+					if (strstr($file['file'], '.xml'))
+					{
+						$xmlDetails = $addOnModel->getXmlType($file['path']);
+						
+						if ($xmlDetails['type'] === 'addon')
+						{
+							$xmlFile = array(
+								'path' => $file['path'],
+								'addon_id' => $xmlDetails['addon_id'],
+								'version_string' => $xmlDetails['version_string']
+							);
+							
+							break;
+						}
+					}
+				}	
 				
-			$xmlFile = implode('', glob($extractLocation . '*.xml'));
-	
-			$caches = $this->_getAddOnModel()->installAddOnXmlFromFile($xmlFile);
-	
+				$allowedDirs = array(
+					'js',
+					'library',
+					'styles',
+					'upload'
+				);
+				
+				$dirList = $addOnModel->getDirectoryListing($extractDir, $allowedDirs);
+				
+				$addOnDirs = array();
+				foreach ($dirList AS $dir)
+				{
+					switch ($dir['file'])
+					{
+						case 'upload':
+							$addOnDirs['upload'] = $dir['path'];
+							break;
+							
+						case 'js':
+							$addOnDirs['js'] = $dir['path'];
+							break;
+							
+						case 'library':
+							$addOnDirs['library'] = $dir['path'];
+							break;	
+							
+						case 'styles':
+							$addOnDirs['styles'] = $dir['path'];
+							break;										
+					}
+				}
+				
+				if (!$dirList)
+				{
+					$dirList = $addOnModel->getDirectoryListing($extractDir);
+					
+					$commonLibDirs = array(
+						'Authentication' => true,
+						'BbCode' => true,
+						'Captcha' => true,
+						'ControllerAdmin' => true,
+						'ControllerPublic' => true,
+						'CronEntry' => true,
+						'DataWriter' => true,
+						'Importer' => true,
+						'Model' => true,
+						'Option' => true,
+						'Route' => true,
+						'Template' => true,
+						'ViewAdmin' => true,
+						'ViewPublic' => true,
+					);
+					
+					foreach ($dirList AS $dir)
+					{
+						if (isset($commonLibDirs[$dir['file']]))
+						{
+							$addOnDirs['maybeLibrary'] = $dir['path'] . '/..';
+						}
+					}
+				}
+				
+				$copiedFiles = array();
+				foreach ($addOnDirs AS $key => $dir)
+				{
+					if ($key == 'upload')
+					{
+						$copiedFiles['upload'] = $addOnModel->recursiveCopy($dir, '.');
+						
+						break;
+					}
+					elseif ($key == 'maybeLibrary')
+					{
+						$addOnModel->recursiveCopy($dir . '/..', './library');
+					}
+					elseif ($key == 'js' || $key == 'library' || $key == 'styles')
+					{
+						$addOnModel->recursiveCopy($dir . '/..', '.');
+					}
+				}
+				
+				if (!$xmlFile)
+				{
+					$addOnModel->deleteAll($extractDir);
+					return $this->responseError(new XenForo_Phrase('a_valid_installable_xml_not_found'));
+				}
+				
+				$addOnExists = $addOnModel->getAddOnById($xmlFile['addon_id']);			
+				if ($addOnExists)
+				{
+					try
+					{
+						$caches += $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
+					}
+					catch (Exception $e)
+					{
+						$caches += $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);	
+					}
+				}
+				else
+				{
+					try
+					{
+						$caches += $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
+					}
+					catch (Exception $e)
+					{
+						$caches += $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
+					}					
+				}
+				
+				$addOnModel->deleteAll($extractDir);
+			}
+			
+			if ($addToUpdates)
+			{
+				$data = array(
+					'addon_id' => $xmlFile['addon_id'],
+					'update_url' => $resourceUrl,
+					'check_updates' => 1,
+					'last_checked' => XenForo_Application::$time,
+					'latest_version' => $xmlFile['version_string']					
+				);
+				
+				$writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
+				
+				if ($addOnModel->isDwUpdate($data['addon_id']))
+				{
+					$writer->setExistingData($data['addon_id']);
+				}
+				
+				$writer->bulkSet($data);
+				$writer->save();
+			}
+			
 			return XenForo_CacheRebuilder_Abstract::getRebuilderResponse($this, $caches, XenForo_Link::buildAdminLink('add-ons'));
 		}
 		else
 		{
-			return $this->responseView('XenForo_ViewAdmin_AddOn_Install', 'addon_install_auto');
+			$viewParams = array();
+			
+			return $this->responseView('AddOnInstaller_ViewAdmin_Install', 'addon_install_auto', $viewParams);
 		}
 	}
 	
-	public function actionAutoUpgrade()
+	public function actionUpdateCheck()
 	{
 		$addOnId = $this->_input->filterSingle('addon_id', XenForo_Input::STRING);
-		if(!$addOnId)
+		
+		if ($addOnId)
 		{
-			$addOnModel = $this->_getAddOnModel();
+			return $this->responseReroute(__CLASS__, 'check');
+		}
+		
+		$addOnModel = $this->_getAddOnModel();
+		$addOns = $addOnModel->getAllUpdateChecks();
+		
+		$viewParams = array(
+			'addOns' => $addOns
+		);
+		
+		return $this->responseView('AddOnInstaller_ViewAdmin_UpdateList', 'addon_install_update_list', $viewParams);	
+	}
+	
+	public function actionUpdateCheckAll()
+	{
+		AddOnInstaller_CronEntry_UpdateCheck::checkUpdates();
+		
+		return $this->responseRedirect(
+			XenForo_ControllerResponse_Redirect::SUCCESS,
+			XenForo_Link::buildAdminLink('add-ons/update-check')
+		);		
+	}
+	
+	
+	public function actionCheck()
+	{
+		$addOnModel = $this->_getAddOnModel();
+		
+		$addOnId = $this->_input->filterSingle('addon_id', XenForo_Input::STRING);
+		$addOn = $this->_getAddOnModel()->getUpdateCheckByAddOnId($addOnId);
+		
+		if (empty($addOn['update_url']))
+		{
+			return $this->responseError(new XenForo_Phrase('this_addon_has_no_resource_url'));
+		}
+			
+		$viewParams = array();
+		
+		$updateData = $addOnModel->checkForUpdate($addOn);
+		
+		if ($updateData)
+		{
+			$skipUpdate = false;
+			if (isset($updateData['updateVersion']) && $updateData['updateVersion'] == $addOn['skip_version'])
+			{
+				$skipUpdate = true;
+			}
 			
 			$viewParams = array(
-					'addOns' => $addOnModel->getAllAddOns()
+				'updateData' => $updateData,
+				'skipUpdate' => $skipUpdate
 			);
-			
-			return $this->responseView('XenForo_ViewAdmin_AddOn_Upgrade', 'addon_upgrade_auto_selector', $viewParams);
 		}
-		$addOn = $this->_getAddOnOrError($addOnId);
+				
+		$viewParams += array(
+			'addOn' => $addOn
+		);
+		
+		return $this->responseView('AddOnInstaller_ViewAdmin_UpdateCheck', 'addon_install_update_check', $viewParams);			
+	}
 	
+	public function actionUpdateSkip()
+	{
+		$addOnModel = $this->_getAddOnModel();
+		
+		$addOnId = $this->_input->filterSingle('addon_id', XenForo_Input::STRING);
+		$addOn = $this->_getAddOnModel()->getUpdateCheckByAddOnId($addOnId);
+		
+		if ($addOn['version_string'] == $addOn['latest_version'])
+		{
+			return $this->responseError(new XenForo_Phrase('this_addon_doesnt_require_update'));
+		}
+		
 		if ($this->isConfirmedPost())
 		{
-			$fileTransfer = new Zend_File_Transfer_Adapter_Http();
-			if ($fileTransfer->isUploaded('upload_file'))
-			{
-				$fileInfo = $fileTransfer->getFileInfo('upload_file');
-				$fileName = $fileInfo['upload_file']['tmp_name'];
+			$writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
 			
-			}
-			$extractLocation = 'addon-prestage/' . preg_replace('/[^a-z0-9]/i', '_', $fileInfo['upload_file']['name']) . '/';
-			$zip = new ZipArchive;
-			$res = $zip->open($fileName);
-			if ($res === TRUE)
+			if ($addOnModel->isDwUpdate($addOnId))
 			{
-				$zip->extractTo($extractLocation);
-				$zip->close();
+				$writer->setExistingData($addOnId);
 			}
-			else
-			{
-				return $this->responseError(new XenForo_Phrase('zip_file_could_not_be_opened'));
-			}			
-			$path = $extractLocation;
-			$results = scandir($path);
 			
-			foreach ($results as $result)
-			{
-				if ($result === '.' or $result === '..') continue;
-				if (is_dir($path . '/' . $result))
-				{
-					if ($result !== 'upload')
-					{
-						if (is_dir($path . $result . '/upload'))
-						{							
-							$uploadDir = $path . $result . '/upload';
-							
-							$source = $uploadDir;
-							
-							$destination = '.';
-							
-							$this->_getAddOnModel()->addOnInstallerCopyFiles($source, $destination);							
-						}
-					}
-					elseif (is_dir($path . '/upload'))
-					{
-						$uploadDir = $path . '/upload';
-							
-						$source = $uploadDir;
-							
-						$destination = '.';
-							
-						$this->_getAddOnModel()->addOnInstallerCopyFiles($source, $destination);
-					}
-				}
-			}
-			if(!isset($uploadDir))
-			{
-				return $this->responseError(new XenForo_Phrase('no_upload_directory_found'));
-			}
-				
-			$extractDir = scandir($extractLocation);
-				
-			$xmlFile = implode('', glob($extractLocation . '*.xml'));
-	
-			$caches = $this->_getAddOnModel()->installAddOnXmlFromFile($xmlFile, $addOn['addon_id']);
-	
-			return XenForo_CacheRebuilder_Abstract::getRebuilderResponse($this, $caches,
-					XenForo_Link::buildAdminLink('add-ons') . $this->getLastHash($addOnId));
+			$writer->set('skip_version', $addOn['latest_version']);
+			$writer->save();
+			
+			return $this->responseRedirect(
+				XenForo_ControllerResponse_Redirect::SUCCESS,
+				XenForo_Link::buildAdminLink('add-ons/update-check'),
+				new XenForo_Phrase('addon_update_has_been_skipped')
+			);			
 		}
 		else
 		{
 			$viewParams = array(
-					'addOn' => $addOn
+				'addOn' => $addOn
 			);
-	
-			return $this->responseView('XenForo_ViewAdmin_AddOn_Upgrade', 'addon_upgrade_auto', $viewParams);
+			
+			return $this->responseView('AddOnInstaller_ViewPublic_SkipUpdate', 'addon_update_skip', $viewParams);
 		}
-	}	
+	}
 	
+	public function actionUpdateAdd()
+	{
+		$addOnId = $this->_input->filterSingle('addon_id', XenForo_Input::STRING);
+		$addOn = $this->_getAddOnModel()->getAddOnById($addOnId);
+		
+		$addOn += array(
+			'update_url' => '',
+			'check_updates' => 1,
+			'auto_update' => 0,
+		);
+		
+		return $this->_getUpdateAddEditResponse($addOn);
+	}
+	
+	public function actionUpdateEdit()
+	{
+		$addOnId = $this->_input->filterSingle('addon_id', XenForo_Input::STRING);
+		$addOn = $this->_getAddOnModel()->getUpdateCheckByAddOnId($addOnId);
+
+		return $this->_getUpdateAddEditResponse($addOn);
+	}
+	
+	protected function _getUpdateAddEditResponse(array $addOn)
+	{
+		$viewParams = array(
+			'addOn' => $addOn
+		);
+		
+		return $this->responseView('AddOnInstaller_ViewAdmin_UpdateEdit', 'addon_install_update_edit', $viewParams);
+	}
+	
+	public function actionUpdateSave()
+	{
+		$addOnModel = $this->_getAddOnModel();
+		$addOnId = $this->_input->filterSingle('addon_id', XenForo_Input::STRING);
+		$addOn = $this->_getAddOnModel()->getUpdateCheckByAddOnId($addOnId);
+		
+		$data = $this->_input->filter(array(
+			'addon_id' => XenForo_Input::STRING,
+			'update_url' => XenForo_Input::STRING,
+			'check_updates' => XenForo_Input::UINT,
+		));
+		
+		$writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
+		
+		if ($addOnModel->isDwUpdate($addOnId))
+		{
+			$writer->setExistingData($data['addon_id']);
+		}
+		
+		$writer->bulkSet($data);
+		$writer->save();
+		
+		return $this->responseRedirect(
+			XenForo_ControllerResponse_Redirect::SUCCESS,
+			XenForo_Link::buildAdminLink('add-ons/update-check')
+		);
+	}
 }
