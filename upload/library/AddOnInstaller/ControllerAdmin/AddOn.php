@@ -127,7 +127,6 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 				$addToUpdates = true;
 			}
 			
-			$caches = array();
 			foreach ($extractDirs AS $extractDir)
 			{
 				$fileList = $addOnModel->getFileListing($extractDir);
@@ -245,22 +244,22 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 				{
 					try
 					{
-						$caches += $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
+						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
 					}
 					catch (Exception $e)
 					{
-						$caches += $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);	
+						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);	
 					}
 				}
 				else
 				{
 					try
 					{
-						$caches += $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
+						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
 					}
 					catch (Exception $e)
 					{
-						$caches += $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
+						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
 					}					
 				}
 				

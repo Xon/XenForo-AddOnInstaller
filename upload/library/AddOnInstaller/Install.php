@@ -13,8 +13,8 @@ class AddOnInstaller_Install
 			`check_updates` int(3) unsigned NOT NULL DEFAULT 1,
 			`last_checked` int(10) unsigned NOT NULL DEFAULT 0,
 			`latest_version` varchar(30) NOT NULL DEFAULT '',
-			PRIMARY KEY (`addon_id`))
-		");
+			PRIMARY KEY (`addon_id`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 		
 		self::addRemoveColumn('xf_addon_update_check', 'skip_version', 'add', "varchar(30) NOT NULL DEFAULT ''", 'latest_version');
 	}

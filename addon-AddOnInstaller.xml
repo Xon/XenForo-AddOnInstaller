@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.0.0" version_id="13" url="http://www.deemit.co.uk" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
+<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.0.1" version_id="14" url="http://www.deemit.co.uk" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
   <admin_navigation>
     <navigation navigation_id="InstallUpgrade" parent_navigation_id="addOns" display_order="100" link="add-ons/install-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="UpdateCheck" parent_navigation_id="addOns" display_order="200" link="add-ons/update-check" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
@@ -322,18 +322,20 @@ hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$fo
 	</xen:html>
 </xen:textboxunit>]]></template>
   </admin_templates>
+  <admin_template_modifications/>
   <code_events/>
   <code_event_listeners>
-    <listener event_id="container_admin_params" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="containerAdminParams" active="1" description=""/>
-    <listener event_id="load_class_controller" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnController" active="1" description=""/>
-    <listener event_id="load_class_datawriter" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnDataWriter" active="1" description=""/>
-    <listener event_id="load_class_model" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnModel" active="1" description=""/>
-    <listener event_id="template_post_render" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="templatePostRender" active="1" description=""/>
+    <listener event_id="container_admin_params" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="containerAdminParams" active="1" hint="" description=""/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnController" active="1" hint="" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnDataWriter" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnModel" active="1" hint="" description=""/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="templatePostRender" active="1" hint="" description=""/>
   </code_event_listeners>
   <cron>
     <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["-1"],"minutes":["50"]}]]></entry>
   </cron>
   <email_templates/>
+  <email_template_modifications/>
   <optiongroups>
     <option option_id="xenforoRmLoginPassword" edit_format="template" data_type="string" can_backup="1">
       <default_value></default_value>
@@ -410,11 +412,9 @@ You will not be asked to update again until a new update has been released on th
     <phrase title="this_addon_has_no_resource_url" version_id="6" version_string="1.0.0"><![CDATA[This add-on has no Resource Manager URL]]></phrase>
     <phrase title="updates_configured" version_id="6" version_string="1.0.0"><![CDATA[Updates Configured]]></phrase>
     <phrase title="update_check" version_id="6" version_string="1.0.0"><![CDATA[Update Check]]></phrase>
-    <phrase title="update_settings" version_id="6" version_string="1.0.0"><![CDATA[Update Settings]]></phrase>
     <phrase title="update_url_resource_manager" version_id="6" version_string="1.0.0"><![CDATA[Resource Manager URL]]></phrase>
     <phrase title="update_url_resource_manager_explain" version_id="6" version_string="1.0.0"><![CDATA[Please enter the Resource Manager URL for this add-on.]]></phrase>
     <phrase title="uploaded_file_not_a_valid_zip_file" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[The uploaded file is not a valid ZIP file.]]></phrase>
-    <phrase title="version" version_id="6" version_string="1.0.0"><![CDATA[Version]]></phrase>
     <phrase title="xenforo_password" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[XenForo Password]]></phrase>
     <phrase title="xenforo_username" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[XenForo Username]]></phrase>
     <phrase title="zip_file_could_not_be_opened" version_id="1" version_string="0.1"><![CDATA[The provided ZIP file could not be opened. Either the file is not a valid archive or some other read error occurred.]]></phrase>
@@ -422,5 +422,6 @@ You will not be asked to update again until a new update has been released on th
   <route_prefixes/>
   <style_properties/>
   <templates/>
+  <template_modifications/>
   <bb_code_media_sites/>
 </addon>
