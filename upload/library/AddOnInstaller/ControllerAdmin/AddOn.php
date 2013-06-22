@@ -239,6 +239,8 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 					return $this->responseError(new XenForo_Phrase('a_valid_installable_xml_not_found'));
 				}
 				
+				$caches = array();
+				
 				$addOnExists = $addOnModel->getAddOnById($xmlFile['addon_id']);			
 				if ($addOnExists)
 				{
