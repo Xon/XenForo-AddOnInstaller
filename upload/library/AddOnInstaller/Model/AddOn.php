@@ -14,7 +14,10 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 		if (!$installId)
 		{
 			$installId = uniqid();
-			mkdir($baseDir . '/' . $installId);
+			if (!XenForo_Helper_File::createDirectory($baseDir . '/' . $installId, true))
+			{
+				return false;
+			}
 		}
 		
 		$extractDir = $baseDir . '/' . $installId;
@@ -46,7 +49,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
 		if(!is_dir($destination))
 		{ 
-			if(!mkdir($destination))
+			if(!XenForo_Helper_File::createDirectory($destination))
 			{
 				return false;
 			}    
@@ -288,6 +291,12 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 		$dom = new Zend_Dom_Query($request->getBody());
 		
 		$version = $dom->query('h1 .muted');
+
+		if (!$version->count())
+		{
+			return false;
+		}
+
 		$versionText = $version->current()->textContent;
 		
 		$writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');

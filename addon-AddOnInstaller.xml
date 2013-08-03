@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.0.3" version_id="16" url="http://www.deemit.co.uk" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
+<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.0.4" version_id="1000470" url="http://xenmediagallery.com" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
   <admin_navigation>
     <navigation navigation_id="InstallUpgrade" parent_navigation_id="addOns" display_order="100" link="add-ons/install-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="UpdateCheck" parent_navigation_id="addOns" display_order="200" link="add-ons/update-check" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
@@ -363,6 +363,7 @@ hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$fo
     <phrase title="addon_update_has_been_skipped" version_id="10" version_string="1.0.0 RC4"><![CDATA[Add-on update has been ignored]]></phrase>
     <phrase title="admin_navigation_InstallUpgrade" version_id="2" version_string="0.2"><![CDATA[Install & Upgrade]]></phrase>
     <phrase title="admin_navigation_UpdateCheck" version_id="6" version_string="1.0.0"><![CDATA[Update Checker {updates}]]></phrase>
+    <phrase title="an_unexpected_error_occurred_while_extracting_addons" version_id="1000470" version_string="1.0.4"><![CDATA[An unexpected error occurred while extracting add-ons. Make sure the install/addons directory exists and is writable. If it is, you may have some other permissions related problems that you should consult your host or server person about.]]></phrase>
     <phrase title="a_valid_installable_xml_not_found" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[A valid and installable XML file has not been found. You must install manually.]]></phrase>
     <phrase title="check_for_updates_now" version_id="9" version_string="1.0.0 RC3"><![CDATA[Check for Updates Now]]></phrase>
     <phrase title="check_for_update_now" version_id="6" version_string="1.0.0"><![CDATA[Check for Updates Now]]></phrase>
@@ -371,6 +372,7 @@ hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$fo
     <phrase title="configure_addon_update" version_id="6" version_string="1.0.0"><![CDATA[Configure Add-on Update]]></phrase>
     <phrase title="confirm_skip_current_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[Confirm Ignore Current Update]]></phrase>
     <phrase title="confirm_skip_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[Confirm Ignore Update]]></phrase>
+    <phrase title="could_not_create_directory_permissions" version_id="1000470" version_string="1.0.4"><![CDATA[Could not create temporary install directory. Please verify permissions are correct to write to the install/addons directory.]]></phrase>
     <phrase title="cron_entry_AddOnInstallerUpdateCheck" version_id="6" version_string="1.0.0"><![CDATA[Automatic Check for Add-on Updates]]></phrase>
     <phrase title="install_from_file_on_resource_manager" version_id="9" version_string="1.0.0 RC3"><![CDATA[Resource Manager URL]]></phrase>
     <phrase title="install_or_upgrade" version_id="2" version_string="0.2"><![CDATA[Install or Upgrade]]></phrase>
@@ -403,6 +405,7 @@ You may also want to do this if the current update isn't required.
 <br /><br />
 You will not be asked to update again until a new update has been released on the Resource Manager.]]></phrase>
     <phrase title="problem_accessing_resource_page" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[There has been a problem accessing the Resource Manager page.]]></phrase>
+    <phrase title="remember_me" version_id="1000470" version_string="1.0.4"><![CDATA[Remember Me]]></phrase>
     <phrase title="resource_url_must_be_this_format" version_id="9" version_string="1.0.0 RC3"><![CDATA[Resource Manager URLs must be in this format: <b>http://xenforo.com/community/resources/resource-name.1234/</b>]]></phrase>
     <phrase title="rm_username_password_saved_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[You have already saved your XenForo username and password. If you wish to edit this, go to the <a href="admin.php?options/list/serviceProviders">External Service Providers</a> options group.]]></phrase>
     <phrase title="rm_username_password_save_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[You can click "Remember Me" to save your XenForo username and password in the database. This is done at your own risk. Please remember (much like your SMTP settings) no effort is made to encrypt this sensitive credential. It is stored in the database as plain text.]]></phrase>
@@ -422,6 +425,6 @@ You will not be asked to update again until a new update has been released on th
   <route_prefixes/>
   <style_properties/>
   <templates/>
-  <template_modifications/>
+  <public_template_modifications/>
   <bb_code_media_sites/>
 </addon>

@@ -53,8 +53,13 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 					if (empty($fileInfo['error'])) //verify no errors e.g. file not exist
 					{
 						$fileName = $fileInfo['tmp_name'];
-						
-						$extractDirs[] = $addOnModel->extractZip($fileName);
+
+						if (!$dir = $addOnModel->extractZip($fileName))
+						{
+							continue;
+						}
+
+						$extractDirs[] = $dir;
 					}
 				}
 			}
@@ -113,8 +118,12 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 				}				
 
 				$client->setUri('http://xenforo.com/community/' . $downloadUrl);
-				
-				mkdir('install/addons/' . $installId);
+
+				if (!XenForo_Helper_File::createDirectory('install/addons/' . $installId))
+				{
+					return $this->responseError(new XenForo_Phrase('could_not_create_directory_permissions'));
+				}
+
 				$fileName = 'install/addons/' . $installId . '/' . $installId . '.zip';
 				
 				$fp = fopen($fileName, 'w');
@@ -127,7 +136,12 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 				$addToUpdates = true;
 			}
 			$caches = array();
-			
+
+			if (!$extractDirs)
+			{
+				return $this->responseError(new XenForo_Phrase('an_unexpected_error_occurred_while_extracting_addons'));
+			}
+
 			foreach ($extractDirs AS $extractDir)
 			{
 				$fileList = $addOnModel->getFileListing($extractDir);
@@ -247,10 +261,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 					{
 						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
 					}
-					catch (Exception $e)
-					{
-						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);	
-					}
+					catch (Exception $e) {}
 				}
 				else
 				{
@@ -258,10 +269,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 					{
 						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
 					}
-					catch (Exception $e)
-					{
-						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
-					}					
+					catch (Exception $e) {}
 				}
 				
 				$addOnModel->deleteAll($extractDir);
@@ -287,7 +295,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 				$writer->bulkSet($data);
 				$writer->save();
 			}
-			
+
 			return XenForo_CacheRebuilder_Abstract::getRebuilderResponse($this, $caches, XenForo_Link::buildAdminLink('add-ons'));
 		}
 		else
