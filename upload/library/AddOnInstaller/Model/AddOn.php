@@ -14,7 +14,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 		if (!$installId)
 		{
 			$installId = uniqid();
-			if (!XenForo_Helper_File::createDirectory($baseDir . '/' . $installId, true))
+			if (!XenForo_Helper_File::createDirectory($baseDir . '/' . $installId))
 			{
 				return false;
 			}
