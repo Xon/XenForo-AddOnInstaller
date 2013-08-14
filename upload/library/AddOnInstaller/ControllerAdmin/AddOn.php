@@ -11,28 +11,42 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 			$fileTransfer = new Zend_File_Transfer_Adapter_Http();
 			$resourceUrl = $this->_input->filterSingle('resource_url', XenForo_Input::STRING);
 			
-			$oldskool_upload = $fileTransfer->isUploaded('upload_file_oldskool');
-			$oldskool_server = $this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING);
-			
 			$installId = uniqid();
 			
 			$addToUpdates = false;
-			
-			if (!empty($oldskool_server) || $oldskool_upload)
+
+			$extractDirs = array();
+			if ($fileTransfer->isUploaded('upload_file_oldskool'))
 			{
-				if ($fileTransfer->isUploaded('upload_file_oldskool'))
+				foreach ($fileTransfer->getFileInfo() AS $fileInfo)
 				{
-					$fileInfo = $fileTransfer->getFileInfo('upload_file_oldskool');
-					$fileName = $fileInfo['upload_file_oldskool']['tmp_name'];
+					if (empty($fileInfo['error'])) //verify no errors e.g. file not exist
+					{
+						$fileName = $fileInfo['tmp_name'];
+
+						$xmlDetails = $addOnModel->getXmlType($fileName);
+
+						$addOnExists = $addOnModel->getAddOnById($xmlDetails['addon_id']);
+						if ($addOnExists)
+						{
+							$caches = $addOnModel->installAddOnXmlFromFile($fileName, $addOnExists['addon_id']);
+						}
+						else
+						{
+							$caches = $addOnModel->installAddOnXmlFromFile($fileName);
+						}
+					}
 				}
-				else
-				{
-					$fileName = $this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING);
-				}
-				
+
+				return XenForo_CacheRebuilder_Abstract::getRebuilderResponse($this, $caches, XenForo_Link::buildAdminLink('add-ons'));
+			}
+			elseif ($this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING))
+			{
+				$fileName = $this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING);
+
 				$xmlDetails = $addOnModel->getXmlType($fileName);
 
-				$addOnExists = $addOnModel->getAddOnById($xmlDetails['addon_id']);			
+				$addOnExists = $addOnModel->getAddOnById($xmlDetails['addon_id']);
 				if ($addOnExists)
 				{
 					$caches = $addOnModel->installAddOnXmlFromFile($fileName, $addOnExists['addon_id']);
@@ -41,12 +55,10 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 				{
 					$caches = $addOnModel->installAddOnXmlFromFile($fileName);
 				}
-				
+
 				return XenForo_CacheRebuilder_Abstract::getRebuilderResponse($this, $caches, XenForo_Link::buildAdminLink('add-ons'));
 			}
-							
-			$extractDirs = array();
-			if ($fileTransfer->isUploaded('upload_file'))
+			elseif ($fileTransfer->isUploaded('upload_file'))
 			{
 				foreach ($fileTransfer->getFileInfo() AS $fileInfo)
 				{
