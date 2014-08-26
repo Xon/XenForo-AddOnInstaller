@@ -240,16 +240,8 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 	
 	public function isResourceUrl($resourceUrl)
 	{
-		$pattern = '#(http://xenforo.com/community/resources/[a-z0-9_\-]+\.[0-9]+)#';
-		
-		preg_match($pattern, $resourceUrl, $matches);
-		
-		if ($matches)
-		{
-			return true;
-		}
-		
-		return false;		
+		/** Temp fix for change of XF URL. In future, we will accept URLs from multiple sources, other RMs, other add-ons etc. */
+		return (strstr($resourceUrl, 'xenforo.com/community/resources'));
 	}
 	
 	public function getUpdateCheckByAddOnId($addOnId)
