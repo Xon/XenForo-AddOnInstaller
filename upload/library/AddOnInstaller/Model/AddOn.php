@@ -191,9 +191,9 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 		}
 		else
 		{ 
-			$directoryHandle = opendir($directory); 
+			$directoryHandle = opendir($directory);
 
-			while ($contents = readdir($directoryHandle))
+			while (($contents = readdir($directoryHandle)) !== false)
 			{ 
 				if($contents != '.' && $contents != '..')
 				{ 
