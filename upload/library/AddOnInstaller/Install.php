@@ -2,7 +2,7 @@
 
 class AddOnInstaller_Install
 {
-	public static function installer()
+	public static function installer($existingAddOn, array $addOnData, SimpleXMLElement $xml)
 	{
 		$db = XenForo_Application::getDb();
 
@@ -17,6 +17,18 @@ class AddOnInstaller_Install
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 		
 		self::addRemoveColumn('xf_addon_update_check', 'skip_version', 'add', "varchar(30) NOT NULL DEFAULT ''", 'latest_version');
+
+		if ($xml && XenForo_Application::$versionId >= 1020070)
+		{
+			foreach ($xml->cron->entry AS $cronEntry)
+			{
+				$entry = json_decode($cronEntry[0], true);
+				$entry['hours'] = array(mt_rand(0, 23));
+				$entry['minutes'] = array(mt_rand(0, 59));
+
+				$cronEntry[0] = json_encode($entry);
+			}
+		}
 	}
 
 	public static function uninstaller()

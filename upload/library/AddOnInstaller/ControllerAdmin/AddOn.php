@@ -256,7 +256,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 					}
 					elseif ($key == 'js' || $key == 'library' || $key == 'styles')
 					{
-						$addOnModel->recursiveCopy($dir . '/..', '.');
+						$addOnModel->recursiveCopy($dir . '/..', './' . $key);
 					}
 				}
 				
@@ -269,19 +269,11 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 				$addOnExists = $addOnModel->getAddOnById($xmlFile['addon_id']);			
 				if ($addOnExists)
 				{
-					try
-					{
-						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
-					}
-					catch (Exception $e) {}
+					$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
 				}
 				else
 				{
-					try
-					{
-						$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
-					}
-					catch (Exception $e) {}
+					$caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
 				}
 				
 				$addOnModel->deleteAll($extractDir);

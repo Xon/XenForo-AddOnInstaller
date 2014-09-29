@@ -14,10 +14,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 		if (!$installId)
 		{
 			$installId = uniqid();
-			if (!XenForo_Helper_File::createDirectory($baseDir . '/' . $installId))
-			{
-				return false;
-			}
+			XenForo_Helper_File::createDirectory($baseDir . '/' . $installId);
 		}
 		
 		$extractDir = $baseDir . '/' . $installId;
@@ -241,7 +238,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 	public function isResourceUrl($resourceUrl)
 	{
 		/** Temp fix for change of XF URL. In future, we will accept URLs from multiple sources, other RMs, other add-ons etc. */
-		return (strstr($resourceUrl, 'xenforo.com/community/resources'));
+		return (strstr($resourceUrl, 'xenforo.com/community/resources') || $resourceUrl === '');
 	}
 	
 	public function getUpdateCheckByAddOnId($addOnId)

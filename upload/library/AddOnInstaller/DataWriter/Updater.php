@@ -60,6 +60,7 @@ class AddOnInstaller_DataWriter_Updater extends XenForo_DataWriter
 	{
 		if ($this->_getAddOnModel()->isResourceUrl($resourceUrl))
 		{
+			$resourceUrl = rtrim($resourceUrl, '/');
 			return true;
 		}
 		else
