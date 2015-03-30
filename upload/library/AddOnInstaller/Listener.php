@@ -49,6 +49,6 @@ class AddOnInstaller_Listener
 
 	public static function load_class($class, array &$extend)
 	{
-		$extend[] = str_replace('AddOnInstaller_', 'XenForo_', $class) ;
+		$extend[] = str_replace('XenForo_', 'AddOnInstaller_', $class) ;
 	}
 }
