@@ -1,8 +1,6 @@
 <?php
 class AddOnInstaller_Listener
 {
-	public static $_addOnModelEnabled;
-	
 	public static function containerAdminParams(array &$params, XenForo_Dependencies_Abstract $dependencies)
 	{
 		if (isset($params['adminNavigation']['sideLinks']['addOns']['installAddOn']))
@@ -37,32 +35,20 @@ class AddOnInstaller_Listener
 		}
 	}
 	
-	public static function extendAddOnController($class, array &$extend)
+	public static function extendAddOnController($class, array &$extend) 
 	{
-		if ($class == 'XenForo_ControllerAdmin_AddOn')
-		{
-			$extend[] = 'AddOnInstaller_ControllerAdmin_AddOn';
-		}
 	}
 	
 	public static function extendAddOnModel($class, array &$extend)
 	{
-		if ($class == 'XenForo_Model_AddOn')
-		{
-			$extend[] = 'AddOnInstaller_Model_AddOn';
-			
-			if (!self::$_addOnModelEnabled)
-			{
-				self::$_addOnModelEnabled = true;
-			}
-		}
 	}
 	
 	public static function extendAddOnDataWriter($class, array &$extend)
 	{
-		if ($class == 'XenForo_DataWriter_AddOn')
-		{
-			$extend[] = 'AddOnInstaller_DataWriter_AddOn';
-		}
+	}
+
+	public static function load_class($class, array &$extend)
+	{
+		$extend[] = str_replace('AddOnInstaller_', 'XenForo_', $class) ;
 	}
 }

@@ -9,11 +9,8 @@ class AddOnInstaller_DataWriter_AddOn extends XFCP_AddOnInstaller_DataWriter_Add
 	{
 		$parent = parent::_postDelete();
 		
-		if (AddOnInstaller_Listener::$_addOnModelEnabled)
-		{
-			$addOnModel = $this->_getAddOnModel();
-			$addOnModel->deleteAddOnUpdates($this->get('addon_id'));			
-		}
+		$addOnModel = $this->_getAddOnModel();
+		$addOnModel->deleteAddOnUpdates($this->get('addon_id'));
 		
 		return $parent;
 	}
