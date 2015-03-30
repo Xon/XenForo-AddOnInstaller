@@ -183,6 +183,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 					'js',
 					'library',
 					'styles',
+					'UPLOAD',
 					'upload'
 				);
 				
@@ -193,6 +194,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 				{
 					switch ($dir['file'])
 					{
+						case 'UPLOAD':
 						case 'upload':
 							$addOnDirs['upload'] = $dir['path'];
 							break;
