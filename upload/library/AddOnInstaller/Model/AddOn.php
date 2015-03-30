@@ -112,7 +112,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 		
 		return $dirs;
 	}
-	
+
 	/**
 	* Given a directory, this will recursively list all files within it
 	* 
@@ -272,6 +272,23 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 		', 'addon_id');
 	}
 	
+	public function checkForUpdates()
+	{
+		try
+		{
+			$updates = $this->getAllUpdateChecks();
+
+			foreach ($updates AS $update)
+			{
+				if ($update['check_updates'] && $update['update_url'])
+				{
+					$this->checkForUpdate($update, true);
+				}
+			}
+		}
+		catch (Exception $e) {XenForo_Error::Debug($e); }
+	}
+    
 	public function checkForUpdate($addOn, $checkOnly = false)
 	{
 		$client = XenForo_Helper_Http::getClient($addOn['update_url'] . '/updates');
