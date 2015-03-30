@@ -327,7 +327,24 @@ hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$fo
 	</xen:html>
 </xen:textboxunit>]]></template>
   </admin_templates>
-  <admin_template_modifications/>
+  <admin_template_modifications>
+    <modification template="addon_list" modification_key="addoninstaller_addon_list" description="Update addon list" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[add-ons/install]]></find>
+      <replace><![CDATA[add-ons/install-upgrade]]></replace>
+    </modification>
+    <modification template="sidenav_entry" modification_key="addoninstaller_sidenav_entry" description="Add update check count" execution_order="11" enabled="1" action="preg_replace">
+      <find><![CDATA[#^#]]></find>
+      <replace><![CDATA[<xen:if is="{$link.navigation_id} == 'UpdateCheck'">
+  <xen:if is="{$xenOptions.addoninstaller_check_update}">
+    <xen:set var="$updateCount"><xen:callback class="AddOnInstaller_Listener" method="getAddonInstallerUpdateCount" /></xen:set>   
+  <xen:else/>
+    <xen:set var="$updateCount" />
+  </xen:if>
+  <xen:set var="$link.title">{xen:phrase admin_navigation_UpdateCheck, 'updates={$updateCount}'}</xen:set>
+</xen:if>
+$1]]></replace>
+    </modification>
+  </admin_template_modifications>
   <code_events/>
   <code_event_listeners>
     <listener event_id="container_admin_params" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="containerAdminParams" active="1" hint="" description=""/>
@@ -341,16 +358,25 @@ hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$fo
   <email_templates/>
   <email_template_modifications/>
   <optiongroups>
+    <group group_id="addOnInstaller" display_order="21" debug_only="0"/>
+    <option option_id="addoninstaller_check_update" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="10"/>
+    </option>
     <option option_id="xenforoRmLoginPassword" edit_format="template" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params>option_template_xenforoRmLoginPassword</edit_format_params>
       <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="610"/>
       <relation group_id="serviceProviders" display_order="610"/>
     </option>
     <option option_id="xenforoRmLoginUsername" edit_format="template" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params>option_template_xenforoRmLoginUsername</edit_format_params>
       <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="600"/>
       <relation group_id="serviceProviders" display_order="600"/>
     </option>
   </optiongroups>
@@ -397,6 +423,10 @@ hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$fo
     <phrase title="no_updates_configured" version_id="6" version_string="1.0.0"><![CDATA[No updates are configured for this add-on]]></phrase>
     <phrase title="no_upload_directory_found" version_id="1" version_string="0.1"><![CDATA[There is no upload directory found within this archive. This add-on does not support the Add-on Installer.]]></phrase>
     <phrase title="only_resource_manager_urls_are_valid" version_id="9" version_string="1.0.0 RC3"><![CDATA[Only proper Resource Manager URLs are valid]]></phrase>
+    <phrase title="option_addoninstaller_check_update" version_id="1020000" version_string="1.2.0"><![CDATA[Check for Addon Updates]]></phrase>
+    <phrase title="option_addoninstaller_check_update_explain" version_id="1020000" version_string="1.2.0"><![CDATA[Periodically check for addon updates.]]></phrase>
+    <phrase title="option_group_addOnInstaller" version_id="1020000" version_string="1.2.0"><![CDATA[Add-on Installer & Upgrade]]></phrase>
+    <phrase title="option_group_addOnInstaller_description" version_id="1020000" version_string="1.2.0"><![CDATA[]]></phrase>
     <phrase title="option_xenforoRmLoginPassword" version_id="11" version_string="1.0.0 RC5"><![CDATA[XenForo Password]]></phrase>
     <phrase title="option_xenforoRmLoginPassword_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[Please remember (much like your SMTP settings) no effort is made to encrypt this sensitive credential. It is stored in the database as plain text.]]></phrase>
     <phrase title="option_xenforoRmLoginUsername" version_id="10" version_string="1.0.0 RC4"><![CDATA[XenForo Username]]></phrase>

@@ -4,6 +4,7 @@ class AddOnInstaller_CronEntry_UpdateCheck
 {
 	public static function checkUpdates()
 	{
+		if (XenForo_Application::getOptions()->addoninstaller_check_update)
 		try
 		{
 			$addOnModel = XenForo_Model::create('XenForo_Model_AddOn');
@@ -18,6 +19,6 @@ class AddOnInstaller_CronEntry_UpdateCheck
 				}
 			}
 		}
-		catch (Exception $e) {}
+		catch (Exception $e) {XenForo_Error::Debug($e); }
 	}
 }
