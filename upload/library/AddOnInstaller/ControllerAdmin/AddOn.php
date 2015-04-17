@@ -318,7 +318,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 		
 		if ($addOnId)
 		{
-			return $this->responseReroute(__CLASS__, 'check');
+			return $this->responseReroute("XenForo_ControllerAdmin_AddOn", 'check');
 		}
 		
 		$addOnModel = $this->_getAddOnModel();
