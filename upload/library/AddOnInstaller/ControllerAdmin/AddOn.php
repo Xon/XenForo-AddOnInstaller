@@ -99,7 +99,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 					}
 				}
 
-				$client = XenForo_Helper_Http::getClient('http://xenforo.com/community/login/login');
+				$client = XenForo_Helper_Http::getClient('https://xenforo.com/community/login/login');
 				
 				$client->setCookieJar();
 				
@@ -129,7 +129,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 					return $this->responseError(new XenForo_Phrase('no_download_url_found_maybe_paid'));
 				}				
 
-				$client->setUri('http://xenforo.com/community/' . $downloadUrl);
+				$client->setUri('https://xenforo.com/community/' . $downloadUrl);
 
 				if (!XenForo_Helper_File::createDirectory('install/addons/' . $installId))
 				{

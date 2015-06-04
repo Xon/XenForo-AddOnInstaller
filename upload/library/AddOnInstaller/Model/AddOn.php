@@ -332,7 +332,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 				
 				if ($updates->count())
 				{
-					$updateUrl = 'http://xenforo.com/community/' . $updates->current()->getAttribute('href');
+					$updateUrl = 'https://xenforo.com/community/' . $updates->current()->getAttribute('href');
 					
 					$client->setUri($updateUrl);
 					

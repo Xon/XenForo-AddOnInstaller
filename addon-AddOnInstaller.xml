@@ -440,7 +440,7 @@ You may also want to do this if the current update isn't required.
 You will not be asked to update again until a new update has been released on the Resource Manager.]]></phrase>
     <phrase title="problem_accessing_resource_page" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[There has been a problem accessing the Resource Manager page.]]></phrase>
     <phrase title="remember_me" version_id="1000470" version_string="1.0.4"><![CDATA[Remember Me]]></phrase>
-    <phrase title="resource_url_must_be_this_format" version_id="9" version_string="1.0.0 RC3"><![CDATA[Resource Manager URLs must be in this format: <b>http://xenforo.com/community/resources/resource-name.1234/</b>]]></phrase>
+    <phrase title="resource_url_must_be_this_format" version_id="1020000" version_string="1.2.0"><![CDATA[Resource Manager URLs must be in this format: <b>https://xenforo.com/community/resources/resource-name.1234/</b>]]></phrase>
     <phrase title="rm_username_password_saved_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[You have already saved your XenForo username and password. If you wish to edit this, go to the <a href="admin.php?options/list/serviceProviders">External Service Providers</a> options group.]]></phrase>
     <phrase title="rm_username_password_save_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[You can click "Remember Me" to save your XenForo username and password in the database. This is done at your own risk. Please remember (much like your SMTP settings) no effort is made to encrypt this sensitive credential. It is stored in the database as plain text.]]></phrase>
     <phrase title="save_update_settings" version_id="6" version_string="1.0.0"><![CDATA[Save Update Settings]]></phrase>
