@@ -33,4 +33,28 @@ class AddOnInstaller_Listener
 	{
 		$extend[] = str_replace('XenForo_', 'AddOnInstaller_', $class) ;
 	}
+
+	public static function extendAddOnController($class, array &$extend)
+	{
+		if ($class == 'XenForo_ControllerAdmin_AddOn')
+		{
+			self::load_class($class, $extend);
+		}
+	}
+
+	public static function extendAddOnModel($class, array &$extend)
+	{
+		if ($class == 'XenForo_Model_AddOn')
+		{
+			self::load_class($class, $extend);
+		}
+	}
+
+	public static function extendAddOnDataWriter($class, array &$extend)
+	{
+		if ($class == 'XenForo_DataWriter_AddOn')
+		{
+			self::load_class($class, $extend);
+		}
+	}
 }
