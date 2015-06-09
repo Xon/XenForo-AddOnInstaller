@@ -33,6 +33,8 @@ class AddOnInstaller_Install
 
 	public static function uninstaller()
 	{
+		AddOnInstaller_Listener::$_UninstallingSelf = true;
+
 		$db = XenForo_Application::getDb();
 
 		$db->query('

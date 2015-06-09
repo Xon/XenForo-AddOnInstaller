@@ -1,6 +1,8 @@
 <?php
 class AddOnInstaller_Listener
 {
+    public static $_UninstallingSelf = false;
+
 	public static function containerAdminParams(array &$params, XenForo_Dependencies_Abstract $dependencies)
 	{
 		if (isset($params['adminNavigation']['sideLinks']['addOns']['installAddOn']))
