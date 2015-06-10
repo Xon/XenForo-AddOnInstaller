@@ -14,6 +14,11 @@ class AddOnInstaller_Listener
 	public static function getAddonInstallerUpdateCount($content, $params, XenForo_Template_Abstract $template)
 	{
 		$addOnModel = XenForo_Model::create('XenForo_Model_AddOn');
+		
+		if (!method_exists($addOnModel, 'getAllUpdateChecks'))
+		{
+			return '[0]';
+		}
 
 		$updates = $addOnModel->getAllUpdateChecks();
 
