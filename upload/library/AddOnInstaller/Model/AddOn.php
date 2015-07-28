@@ -67,6 +67,20 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 		
 		return true;
 	}
+
+	/**
+	* Reset the entire opcache
+	*
+	* @param string $file The file to reset.
+	*/
+	protected static function InvalidateOpCache()
+	{
+		// opcache
+		if (function_exists('opcache_reset'))
+		{
+			opcache_reset();
+		}
+	}
 		
 	/**
 	* Given a directory, this will recursively list all directories within it

@@ -300,6 +300,8 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 				
 				$writer->bulkSet($data);
 				$writer->save();
+
+                $addOnModel->InvalidateOpCache();
 			}
 
 			return XenForo_CacheRebuilder_Abstract::getRebuilderResponse($this, $caches, XenForo_Link::buildAdminLink('add-ons'));
