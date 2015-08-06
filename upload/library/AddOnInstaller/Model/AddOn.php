@@ -73,7 +73,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     *
     * @param string $file The file to reset.
     */
-    protected static function InvalidateOpCache()
+    public static function InvalidateOpCache()
     {
         // opcache
         if (function_exists('opcache_reset'))
@@ -168,7 +168,8 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         $xmlDetails = array(
             'type' => (string)$xml->getName(),
             'addon_id' => (string)$xml['addon_id'],
-            'version_string' => (string)$xml['version_string']
+            'version_string' => (string)$xml['version_string'],
+            'resource_url' => (string)$xml['url'],
         );
 
         return $xmlDetails;
@@ -391,11 +392,20 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         return $db->delete('xf_addon_update_check', "addon_id = $addOnIdQuoted");
     }
 
+    public function getNextInstallOrder($addonInstallBatchId)
+    {
+        return $this->_getDb()->fetchRow('
+            SELECT max(install_order) + 1
+            FROM xf_addon_install_batch_entry
+            WHERE addon_install_batch_id = ?
+        ', $addonInstallBatchId);
+    }
+
     public function getInstallBatchById($addonInstallBatchId)
     {
         return $this->_getDb()->fetchRow('
             SELECT *
-            FROM addon_install_batch
+            FROM xf_addon_install_batch
             WHERE addon_install_batch_id = ?
         ', $addonInstallBatchId);
     }
@@ -404,18 +414,18 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     {
         return $this->_getDb()->fetchRow('
             SELECT *
-            FROM addon_install_batch_entry
+            FROM xf_addon_install_batch_entry
             WHERE addon_install_batch_entry_id = ?
         ', $addonInstallBatchEntryId);
     }
-    
+
     public function getInstallBatchEntrysById($addonInstallBatchId)
     {
         return $this->fetchAllKeyed('
             SELECT *
-            FROM addon_install_batch_entry
+            FROM xf_addon_install_batch_entry
             WHERE addon_install_batch_id = ?
-            order by install_order 
+            order by install_order
         ', 'addon_install_batch_entry_id', $addonInstallBatchId);
     }
 }

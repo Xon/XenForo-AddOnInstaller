@@ -24,6 +24,8 @@ class AddOnInstaller_Install
             `addon_count` int(10) unsigned NOT NULL DEFAULT 0,
             `is_completed` tinyint(3) unsigned NOT NULL DEFAULT 0,
             `deploy_method` enum('copy','ftp') NOT NULL DEFAULT 'copy',
+            `user_id` int(10) unsigned NOT NULL DEFAULT 0,
+            `username` VARCHAR(50) NOT NULL DEFAULT '',
             PRIMARY KEY (`addon_install_batch_id`)
         ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
 
@@ -37,8 +39,10 @@ class AddOnInstaller_Install
             `in_error` tinyint(3) unsigned NOT NULL DEFAULT 0,
             `install_order` int(10) unsigned NOT NULL DEFAULT 0,
             `original_filename` VARCHAR(1024) NOT NULL DEFAULT '',
-            `files` VARCHAR(1024) NOT NULL DEFAULT '',
+            `source_file` VARCHAR(1024) NOT NULL DEFAULT '',
+            `extracted_files` VARCHAR(1024) NOT NULL DEFAULT '',
             `xml_file` VARCHAR(1024) NOT NULL DEFAULT '',
+            `resource_url` VARCHAR(250) NOT NULL DEFAULT '',
             PRIMARY KEY (`addon_install_batch_entry_id`),
             KEY (`addon_install_batch_id`, `install_order`)
         ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
