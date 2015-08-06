@@ -2,6 +2,17 @@
 
 class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_ControllerAdmin_AddOn
 {
+    public function actionInstallLog()
+    {
+        $addOnModel = $this->_getAddOnModel();
+        $addons = $addOnModel->getAddonInstallLog();
+        $viewParams = array
+        (
+            'addons' => $addons,
+        );
+        return $this->responseView('AddOnInstaller_ViewAdmin_Install', 'addon_install_log', $viewParams);
+    }
+
     public function actionInstallUpgrade()
     {
         $addon_install_batch_id = $this->_input->filterSingle('addon_install_batch_id', XenForo_Input::UINT);
@@ -16,7 +27,6 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         );
         return $this->responseView('AddOnInstaller_ViewAdmin_Install', 'addon_install_auto', $viewParams);
     }
-
 
     protected function addInstallBatch()
     {

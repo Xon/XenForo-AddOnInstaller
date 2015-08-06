@@ -428,4 +428,14 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
             order by install_order
         ', 'addon_install_batch_entry_id', $addonInstallBatchId);
     }
+
+    public function getAddonInstallLog()
+    {
+        return $this->fetchAllKeyed("
+            SELECT batch.*, entry.*
+            FROM xf_addon_install_batch AS batch
+            join xf_addon_install_batch_entry AS entry on entry.addon_install_batch_id = batch.addon_install_batch_id
+            order by batch.install_date, entry.install_order
+        ", 'addon_install_batch_entry_id');
+    }
 }

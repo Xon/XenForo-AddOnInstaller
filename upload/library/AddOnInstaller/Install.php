@@ -27,6 +27,7 @@ class AddOnInstaller_Install
             `user_id` int(10) unsigned NOT NULL DEFAULT 0,
             `username` VARCHAR(50) NOT NULL DEFAULT '',
             PRIMARY KEY (`addon_install_batch_id`)
+            KEY (`install_date`)
         ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
 
         $db->query("

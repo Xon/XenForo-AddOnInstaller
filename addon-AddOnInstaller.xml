@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.3.0" version_id="1030000" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
   <admin_navigation>
+    <navigation navigation_id="AddonInstallLog" parent_navigation_id="addOns" display_order="300" link="add-ons/install-log" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="InstallUpgrade" parent_navigation_id="addOns" display_order="100" link="add-ons/install-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="UpdateCheck" parent_navigation_id="addOns" display_order="200" link="add-ons/update-check" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
   </admin_navigation>
@@ -177,6 +178,30 @@
 	font-size: 16px;
 	margin-top: 30px;
 }]]></template>
+    <template title="addon_install_log"><![CDATA[<xen:require css="addon_install_auto.css" />
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<h2 class="subHeading">
+	<xen:include template="filter_list_controls" />
+	{xen:phrase addon_install_log}
+</h2>
+
+<ol class="FilterList Scrollable">
+	<xen:foreach loop="$addons" value="$addon">
+		<xen:listitem
+			id="{$addon.addon_install_batch_id}"
+			label="{$addon.original_filename} {xen:phrase addon_installed_by_x_on_y, 'name={$addon.username}', 'date={xen:date $addon.install_date, 'absolute'}'}"
+			snippet="{$addon.addon_id} {xen:if {$addon.version_string}, "({xen:phrase version}: {$addon.version_string})"} {xen:if {$addon.in_error}, "| {xen:phrase addon_error}"}"
+			href="{xen:adminlink 'add-ons/install-upgrade', '', 'addon_install_batch_id={$addon.addon_install_batch_id}'}"
+			linkclass="OverlayTrigger">
+			<xen:html>
+			</xen:html>
+		</xen:listitem>
+	</xen:foreach>
+</ol>
+
+<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $addons}</span>', 'total={xen:count $addons}'}</p>]]></template>
     <template title="addon_install_rm_login"><![CDATA[<xen:if is="!{$xenOptions.xenforoRmLoginUsername} && !{$xenOptions.xenforoRmLoginPassword}">
 	<xen:textboxunit label="{xen:phrase xenforo_username}:" name="login" />
 	<xen:textboxunit label="{xen:phrase xenforo_password}:" name="password" type="password" />
@@ -421,13 +446,16 @@ $1]]></replace>
   <phrases>
     <phrase title="addon_error" version_id="1030000" version_string="1.3.0"><![CDATA[Has errors - Check Server Error logs.]]></phrase>
     <phrase title="addon_fully_up_to_date" version_id="6" version_string="1.0.0"><![CDATA[Add-on is fully up to date.]]></phrase>
+    <phrase title="addon_installed_by_x_on_y" version_id="1030000" version_string="1.3.0"><![CDATA[- installed by {name} on {date}]]></phrase>
     <phrase title="addon_installer_option1" version_id="5" version_string="1.0.0"><![CDATA[Option 1: <i>I have downloaded an add-on ZIP (or multiple ZIP files) to my computer</i>.]]></phrase>
     <phrase title="addon_installer_option2" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Option 2: <i>I haven't yet downloaded the ZIP file. Get it for me.</i>]]></phrase>
     <phrase title="addon_installer_option3" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Option 3: <i>I'm old school. I have uploaded the files myself. Here's an XML file</i>:]]></phrase>
     <phrase title="addon_install_batch_completed" version_id="1030000" version_string="1.3.0"><![CDATA[Add-on install batch is completed]]></phrase>
+    <phrase title="addon_install_log" version_id="1030000" version_string="1.3.0"><![CDATA[Addon Install Log]]></phrase>
     <phrase title="addon_start_install" version_id="1030000" version_string="1.3.0"><![CDATA[Confirm & start installing]]></phrase>
     <phrase title="addon_update_has_been_skipped" version_id="10" version_string="1.0.0 RC4"><![CDATA[Add-on update has been ignored]]></phrase>
     <phrase title="add_ons_to_install_or_upgrade" version_id="1030000" version_string="1.3.0"><![CDATA[Add-ons to install or Upgrade]]></phrase>
+    <phrase title="admin_navigation_AddonInstallLog" version_id="1030000" version_string="1.3.0"><![CDATA[Addon Install Log]]></phrase>
     <phrase title="admin_navigation_InstallUpgrade" version_id="2" version_string="0.2"><![CDATA[Install & Upgrade]]></phrase>
     <phrase title="admin_navigation_UpdateCheck" version_id="6" version_string="1.0.0"><![CDATA[Update Checker {updates}]]></phrase>
     <phrase title="an_unexpected_error_occurred_while_extracting_addons" version_id="1000470" version_string="1.0.4"><![CDATA[An unexpected error occurred while extracting add-ons. Make sure the install/addons directory exists and is writable. If it is, you may have some other permissions related problems that you should consult your host or server person about.]]></phrase>
