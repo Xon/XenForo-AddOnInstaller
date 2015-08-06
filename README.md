@@ -15,8 +15,6 @@ Whereas the previous version of this add-on required add-ons to be packaged in a
  - A solution for this is completely beyond the scope of any developer. A server configuration change is required.
 
 - If you receive an error relating to the ZipArchive class, this means your PHP wasn't compiled with this (pretty standard) feature. Consult your host or server person.
-- "Please enter a valid callback method" will intermittently occur when the files have not yet finished copying before the XML begins to import. Just press back on your browser and click the Install & Upgrade button again.
-- Due to this being a complete rewrite, it is NOT possible to upgrade this add-on using the old version of the Add-on Installer.
 - If you've only ever registered using Facebook then your account actually doesn't have a password at all. To use this feature go and set a password in your Account settings. Once you've done that you can log in with a password. Facebook login will still work too. Just not with my add on (it wouldn't be possible).
 
 # Installation
