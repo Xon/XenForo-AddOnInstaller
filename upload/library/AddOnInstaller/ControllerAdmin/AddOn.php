@@ -113,7 +113,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             throw $this->getErrorOrNoPermissionResponseException('could_not_create_directory_permissions');
         }
 
-        return $dw;
+        return $dw->get('addon_install_batch_entry_id');
     }
 
     public function _assertInstallBatchOpen($addon_install_batch_id)
@@ -258,8 +258,10 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
             try
             {
-                $dw = $this->addInstallBatchEntry($filename, $newTempFile, $installBatch);
-                $dw->set('resource_url', $resource_url);
+                $addon_install_batch_entry_id = $this->addInstallBatchEntry($filename, $newTempFile, $installBatch);
+                $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
+                $dw->setExistingData($addon_install_batch_entry_id);
+                $dw->set('resource_url', $resourceUrl);
                 $dw->save();
             }
             catch(Exception $e)
