@@ -284,7 +284,17 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         if ($this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING))
         {
             $fileName = $this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING);
-            $this->addInstallBatchEntry($fileName, $fileName, $installBatch);
+            $newTempFile = tempnam(XenForo_Helper_File::getTempDir(), 'xf');
+            try
+            {
+                copy($fileName, $newTempFile);
+                $this->addInstallBatchEntry($fileName, $newTempFile, $installBatch);
+            }
+            catch(Exception $e)
+            {
+                @unlink($newTempFile);
+                throw $e;
+            }
         }
 
         if ($installBatch === null)
