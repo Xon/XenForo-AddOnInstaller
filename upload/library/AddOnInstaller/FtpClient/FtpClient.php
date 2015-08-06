@@ -84,9 +84,9 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	/**
 	 * Overwrites the PHP limit
 	 *
-	 * @param  string|null $memory            The memory limit, if null is not modified
-	 * @param  int         $time_limit        The max execution time, unlimited by default
-	 * @param  bool        $ignore_user_abort Ignore user abort, true by default
+	 * @param  string|null $memory			  The memory limit, if null is not modified
+	 * @param  int		   $time_limit		  The max execution time, unlimited by default
+	 * @param  bool		   $ignore_user_abort Ignore user abort, true by default
 	 *
 	 * @return AddOnInstaller_FtpClient_FtpClient
 	 */
@@ -116,9 +116,9 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	 * Open a FTP connection
 	 *
 	 * @param string $host
-	 * @param bool   $ssl
-	 * @param int    $port
-	 * @param int    $timeout
+	 * @param bool	 $ssl
+	 * @param int	 $port
+	 * @param int	 $timeout
 	 *
 	 * @return AddOnInstaller_FtpClient_FTPClient
 	 * @throws AddOnInstaller_FtpClient_FtpException If unable to connect
@@ -223,14 +223,14 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	 * Returns a list of files in the given directory
 	 *
 	 * @param string   $directory The directory, by default is "." the current directory
-	 * @param bool     $recursive
-	 * @param callable $filter    A callable to filter the result, by default is asort() PHP function.
-	 *                            The result is passed in array argument,
-	 *                            must take the argument by reference !
-	 *                            The callable should proceed with the reference array
-	 *                            because is the behavior of several PHP sorting
-	 *                            functions (by reference ensure directly the compatibility
-	 *                            with all PHP sorting functions).
+	 * @param bool	   $recursive
+	 * @param callable $filter	  A callable to filter the result, by default is asort() PHP function.
+	 *							  The result is passed in array argument,
+	 *							  must take the argument by reference !
+	 *							  The callable should proceed with the reference array
+	 *							  because is the behavior of several PHP sorting
+	 *							  functions (by reference ensure directly the compatibility
+	 *							  with all PHP sorting functions).
 	 *
 	 * @return array
 	 * @throws AddOnInstaller_FtpClient_FtpException If unable to list the directory
@@ -340,7 +340,7 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	 * @see FtpClient::putAll()
 	 *
 	 * @param  string $directory The directory
-	 * @param  bool   $recursive
+	 * @param  bool	  $recursive
 	 *
 	 * @return array
 	 */
@@ -378,7 +378,7 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	 * @see FtpClient::delete()
 	 *
 	 * @param  string $directory
-	 * @param  bool   $recursive Forces deletion if the directory is not empty
+	 * @param  bool	  $recursive Forces deletion if the directory is not empty
 	 *
 	 * @return bool
 	 * @throws AddOnInstaller_FtpClient_FtpException If unable to list the directory to remove
@@ -432,8 +432,8 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	 * @see FtpClient::cleanDir()
 	 * @see FtpClient::delete()
 	 *
-	 * @param  string $path      The path of the file or directory to remove
-	 * @param  bool   $recursive Is effective only if $path is a directory, {@see FtpClient::rmdir()}
+	 * @param  string $path		 The path of the file or directory to remove
+	 * @param  bool	  $recursive Is effective only if $path is a directory, {@see FtpClient::rmdir()}
 	 *
 	 * @return bool
 	 */
@@ -503,7 +503,7 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	 * @see FtpClient::dirSize()
 	 *
 	 * @param  string $directory
-	 * @param  bool   $recursive
+	 * @param  bool	  $recursive
 	 *
 	 * @return array
 	 */
@@ -516,9 +516,9 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	 * Returns the total size of the given directory in bytes
 	 *
 	 * @param  string $directory The directory, by default is the current directory.
-	 * @param  bool   $recursive true by default
+	 * @param  bool	  $recursive true by default
 	 *
-	 * @return int    The size in bytes.
+	 * @return int	  The size in bytes.
 	 */
 	public function dirSize($directory = '.', $recursive = true)
 	{
@@ -536,9 +536,9 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	/**
 	 * Count the items (file, directory, link, unknown)
 	 *
-	 * @param  string      $directory The directory, by default is the current directory.
-	 * @param  string|null $type      The type of item to count (file, directory, link, unknown)
-	 * @param  bool        $recursive true by default
+	 * @param  string	   $directory The directory, by default is the current directory.
+	 * @param  string|null $type	  The type of item to count (file, directory, link, unknown)
+	 * @param  bool		   $recursive true by default
 	 *
 	 * @return int
 	 */
@@ -613,7 +613,7 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	 *
 	 * @param  string $source_directory
 	 * @param  string $target_directory
-	 * @param  int    $mode
+	 * @param  int	  $mode
 	 *
 	 * @return AddOnInstaller_FtpClient_FtpClient
 	 */
@@ -668,7 +668,7 @@ class AddOnInstaller_FtpClient_FtpClient implements Countable
 	 * @see FtpClient::dirSize()
 	 *
 	 * @param  string $directory The directory, by default is the current directory
-	 * @param  bool   $recursive
+	 * @param  bool	  $recursive
 	 *
 	 * @return array
 	 * @throws AddOnInstaller_FtpClient_FtpException

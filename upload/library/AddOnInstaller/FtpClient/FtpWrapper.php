@@ -17,71 +17,71 @@
  */
 class AddOnInstaller_FtpClient_FtpWrapper
 {
-	/**
-	 * The connection with the server
-	 *
-	 * @var resource
-	 */
-	protected $conn;
+    /**
+     * The connection with the server
+     *
+     * @var resource
+     */
+    protected $conn;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param resource &$connection The FTP (or SSL-FTP) connection (takes by reference).
-	 */
-	public function __construct(&$connection)
-	{
-		$this->conn = &$connection;
-	}
+    /**
+     * Constructor.
+     *
+     * @param resource &$connection The FTP (or SSL-FTP) connection (takes by reference).
+     */
+    public function __construct(&$connection)
+    {
+        $this->conn = &$connection;
+    }
 
-	/**
-	 * Forward the method call to FTP functions
-	 *
-	 * @param  string $function
-	 * @param  array  $arguments
-	 *
-	 * @return mixed
-	 * @throws AddOnInstaller_FtpClient_FtpException When the function is not valid
-	 */
-	public function __call($function, array $arguments)
-	{
-		$function = 'ftp_' . $function;
+    /**
+     * Forward the method call to FTP functions
+     *
+     * @param  string $function
+     * @param  array  $arguments
+     *
+     * @return mixed
+     * @throws AddOnInstaller_FtpClient_FtpException When the function is not valid
+     */
+    public function __call($function, array $arguments)
+    {
+        $function = 'ftp_' . $function;
 
-		if (function_exists($function))
-		{
-			array_unshift($arguments, $this->conn);
+        if (function_exists($function))
+        {
+            array_unshift($arguments, $this->conn);
 
-			return call_user_func_array($function, $arguments);
-		}
+            return call_user_func_array($function, $arguments);
+        }
 
-		throw new AddOnInstaller_FtpClient_FtpException("{$function} is not a valid FTP function");
-	}
+        throw new AddOnInstaller_FtpClient_FtpException("{$function} is not a valid FTP function");
+    }
 
-	/**
-	 * Opens a FTP connection
-	 *
-	 * @param  string $host
-	 * @param  int    $port
-	 * @param  int    $timeout
-	 *
-	 * @return resource
-	 */
-	public function connect($host, $port = 21, $timeout = 90)
-	{
-		return ftp_connect($host, $port, $timeout);
-	}
+    /**
+     * Opens a FTP connection
+     *
+     * @param  string $host
+     * @param  int    $port
+     * @param  int    $timeout
+     *
+     * @return resource
+     */
+    public function connect($host, $port = 21, $timeout = 90)
+    {
+        return ftp_connect($host, $port, $timeout);
+    }
 
-	/**
-	 * Opens a Secure SSL-FTP connection
-	 *
-	 * @param  string $host
-	 * @param  int    $port
-	 * @param  int    $timeout
-	 *
-	 * @return resource
-	 */
-	public function ssl_connect($host, $port = 21, $timeout = 90)
-	{
-		return ftp_ssl_connect($host, $port, $timeout);
-	}
+    /**
+     * Opens a Secure SSL-FTP connection
+     *
+     * @param  string $host
+     * @param  int    $port
+     * @param  int    $timeout
+     *
+     * @return resource
+     */
+    public function ssl_connect($host, $port = 21, $timeout = 90)
+    {
+        return ftp_ssl_connect($host, $port, $timeout);
+    }
 }
