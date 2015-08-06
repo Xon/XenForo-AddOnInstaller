@@ -390,4 +390,32 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
         return $db->delete('xf_addon_update_check', "addon_id = $addOnIdQuoted");
     }
+
+    public function getInstallBatchById($addonInstallBatchId)
+    {
+        return $this->_getDb()->fetchRow('
+            SELECT *
+            FROM addon_install_batch
+            WHERE addon_install_batch_id = ?
+        ', $addonInstallBatchId);
+    }
+
+    public function getInstallBatchEntryById($addonInstallBatchEntryId)
+    {
+        return $this->_getDb()->fetchRow('
+            SELECT *
+            FROM addon_install_batch_entry
+            WHERE addon_install_batch_entry_id = ?
+        ', $addonInstallBatchEntryId);
+    }
+    
+    public function getInstallBatchEntrysById($addonInstallBatchId)
+    {
+        return $this->fetchAllKeyed('
+            SELECT *
+            FROM addon_install_batch_entry
+            WHERE addon_install_batch_id = ?
+            order by install_order 
+        ', 'addon_install_batch_entry_id', $addonInstallBatchId);
+    }
 }

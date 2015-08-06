@@ -4,6 +4,7 @@ class AddOnInstaller_Install
 {
     public static function installer($existingAddOn, array $addOnData, SimpleXMLElement $xml)
     {
+        $version = isset($existingAddOn['version_id']) ? $existingAddOn['version_id'] : 0;
         $db = XenForo_Application::getDb();
 
         $db->query("
@@ -14,7 +15,33 @@ class AddOnInstaller_Install
             `last_checked` int(10) unsigned NOT NULL DEFAULT 0,
             `latest_version` varchar(30) NOT NULL DEFAULT '',
             PRIMARY KEY (`addon_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
+
+        $db->query("
+            CREATE TABLE IF NOT EXISTS `xf_addon_install_batch` (
+            `addon_install_batch_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+            `install_date` int(3) unsigned NOT NULL DEFAULT 0,
+            `addon_count` int(10) unsigned NOT NULL DEFAULT 0,
+            `is_completed` tinyint(3) unsigned NOT NULL DEFAULT 0,
+            `deploy_method` enum('copy','ftp') NOT NULL DEFAULT 'copy',
+            PRIMARY KEY (`addon_install_batch_id`)
+        ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
+
+        $db->query("
+            CREATE TABLE IF NOT EXISTS `xf_addon_install_batch_entry` (
+            `addon_install_batch_entry_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+            `addon_install_batch_id` int(10) unsigned NOT NULL,
+            `addon_id` VARCHAR(25) NOT NULL DEFAULT '',
+            `version_string` VARCHAR(30) NOT NULL DEFAULT '',
+            `install_phase` enum('uploaded','extracted','deployed','installed') NOT NULL DEFAULT 'uploaded',
+            `in_error` tinyint(3) unsigned NOT NULL DEFAULT 0,
+            `install_order` int(10) unsigned NOT NULL DEFAULT 0,
+            `original_filename` VARCHAR(1024) NOT NULL DEFAULT '',
+            `files` VARCHAR(1024) NOT NULL DEFAULT '',
+            `xml_file` VARCHAR(1024) NOT NULL DEFAULT '',
+            PRIMARY KEY (`addon_install_batch_entry_id`),
+            KEY (`addon_install_batch_id`, `install_order`)
+        ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
 
         self::addRemoveColumn('xf_addon_update_check', 'skip_version', 'add', "varchar(30) NOT NULL DEFAULT ''", 'latest_version');
 
