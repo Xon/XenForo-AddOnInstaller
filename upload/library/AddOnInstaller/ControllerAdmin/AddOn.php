@@ -60,6 +60,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         }
 
         $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
+        $dw->InstallBatch = $batch;
         if (isset($xmlDetails['addon_id']))
         {
             $dw->set('install_phase', 'extracted');
@@ -94,6 +95,14 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         $resourceUrl = $this->_input->filterSingle('resource_url', XenForo_Input::STRING);
 
         $installBatch = null;
+
+        $addon_install_batch_id = $this->_input->filterSingle('addon_install_batch_id', XenForo_Input::UINT);
+        if ($addon_install_batch_id)
+        {
+            $batch = $addOnModel->getInstallBatchById($addon_install_batch_id);
+            $installBatch = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
+            $installBatch->setExistingData($batch);
+        }
 
         if ($resourceUrl)
         {

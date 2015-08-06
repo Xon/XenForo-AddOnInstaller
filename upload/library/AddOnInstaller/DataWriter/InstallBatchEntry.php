@@ -26,19 +26,23 @@ class AddOnInstaller_DataWriter_InstallBatchEntry extends XenForo_DataWriterEntr
         );
     }
 
+    public $batch = null;
+
 	protected final function _preSave()
 	{
 		if ($this->isInsert())
         {
-            $batch = $this->_getAddOnModel()->getInstallBatchById($this->get('addon_install_batch_entry_id'));
-            $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
-            $dw->setExistingData($batch);
-            $addon_count = $batch['addon_count'] + 1;
-            $dw->set('addon_count', $addon_count);
-            $dw->preSave();
+            if ($this->batch === null)
+            {
+                $batch = $this->_getAddOnModel()->getInstallBatchById($this->get('addon_install_batch_entry_id'));
+                $this->batch = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
+                $this->batch->setExistingData($batch);
+            }
+            $addon_count = $this->batch->get('addon_count') + 1;
+            $this->batch->set('addon_count', $addon_count);
+            $this->batch->save();
 
             $this->set('install_order', $addon_count);
-            $dw->save();
         }
     }
 
