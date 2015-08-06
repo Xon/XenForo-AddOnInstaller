@@ -71,7 +71,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 XenForo_Error::logException($e, false);
             }
         }
-        XenForo_Error::debug(var_export($xmlDetails,true));
+
         // make sure the XML file is an addon
         if (isset($xmlDetails['addon_id']) && $xmlDetails['type'] != 'addon')
         {
@@ -406,8 +406,10 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                     }
                 }
             }
+            $error = false;
             if (!$xmlFile)
             {
+                $error = true;
                 XenForo_Error::logException(new XenForo_Exception(new XenForo_Phrase('a_valid_installable_xml_not_found')), false);
             }
             else
@@ -521,8 +523,6 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 $dw->set('install_phase', 'deployed');
             }
             $dw->save();
-            // cleanup
-            $addOnModel->deleteAll($extractDir);
         }
 
         $addOnModel->InvalidateOpCache();
@@ -555,13 +555,11 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             {
                 continue;
             }
-            $xml_file = $entry['xml_file'];
 
-            $xmlDetails = $addOnModel->getXmlType($xml_file);
             $xmlFile = array(
-                'path' => $xml_file,
-                'addon_id' => $xmlDetails['addon_id'],
-                'version_string' => $xmlDetails['version_string']
+                'path' => $entry['xml_file'],
+                'addon_id' => $entry['addon_id'],
+                'version_string' => $entry['version_string']
             );
 
             $error = false;
@@ -611,6 +609,9 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
             $writer->bulkSet($data);
             $writer->save();
+
+            // cleanup
+            $addOnModel->deleteAll($entry['extracted_files']);
         }
 
         if ($next_phase == 'step-install')
