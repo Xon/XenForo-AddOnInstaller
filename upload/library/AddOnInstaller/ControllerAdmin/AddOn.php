@@ -516,7 +516,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
             $data = array(
                 'addon_id' => $xmlFile['addon_id'],
-                'update_url' => $dw->get('resource_url'),
+                'update_url' => $addOnModel->isResourceUrl($dw->get('resource_url')) ? $dw->get('resource_url') : '',
                 'check_updates' => 1,
                 'last_checked' => XenForo_Application::$time,
                 'latest_version' => $xmlFile['version_string']
