@@ -149,7 +149,6 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
             $response = $client->request('GET');
             $content_disposition = $response->getHeader("Content-Disposition");
-            //attachment; filename="XenForo Updater 1.1.0 Beta 2.zip"
             if(preg_match('/.*filename=[\'\"]([^\'\"]+)/', $content_disposition, $matches))
             {
                 $filename = $matches[1];
