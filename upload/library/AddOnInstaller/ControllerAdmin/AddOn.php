@@ -460,6 +460,11 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         $next_phase = 'install-upgrade';
         $start = microtime(true);
         $caches = array();
+        $installed_addons = false;
+        $options = XenForo_Application::get('options');
+        $options->set('addoninstaller_supress_cache_rebuild', true);
+        try
+        {
         foreach($entries as &$entry)
         {
             if (microtime(true) - $start > $this->MaximumRuntime )
@@ -471,6 +476,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             {
                 continue;
             }
+            $installed_addons = true;
 
             $xmlFile = array(
                 'path' => $entry['xml_file'],
@@ -528,6 +534,21 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
             // cleanup
             $addOnModel->deleteAll($entry['extracted_files']);
+        }
+        }
+        catch(Exception $e)
+        {
+            $options->set('addoninstaller_supress_cache_rebuild', false);
+            if ($installed_addons)
+            {
+                $addOnModel->rebuildAddOnCaches();
+            }
+            throw $e;
+        }
+        $options->set('addoninstaller_supress_cache_rebuild', false);
+        if ($installed_addons)
+        {
+            $addOnModel->rebuildAddOnCaches();
         }
 
         if ($next_phase == 'step-install')
