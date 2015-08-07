@@ -4,6 +4,16 @@ class AddOnInstaller_Install
 {
     public static function installer($existingAddOn, array $addOnData, SimpleXMLElement $xml)
     {
+        if (XenForo_Application::$versionId < 1020070)
+        {
+            throw new XenForo_Exception("Minimum supported version is XF 1.2.0");
+        }
+
+        if (!extension_loaded('zip'))
+        {
+            throw new XenForo_Exception("This addon requires ZipArchive support. This requires the 'zip' extension, which your host must be configured with.");
+        }
+
         $version = isset($existingAddOn['version_id']) ? $existingAddOn['version_id'] : 0;
         $db = XenForo_Application::getDb();
 
@@ -50,7 +60,7 @@ class AddOnInstaller_Install
 
         self::addRemoveColumn('xf_addon_update_check', 'skip_version', 'add', "varchar(30) NOT NULL DEFAULT ''", 'latest_version');
 
-        if ($xml && XenForo_Application::$versionId >= 1020070)
+        if ($xml)
         {
             foreach ($xml->cron->entry AS $cronEntry)
             {
