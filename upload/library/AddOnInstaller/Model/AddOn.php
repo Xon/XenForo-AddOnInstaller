@@ -31,6 +31,12 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         return $extractDir;
     }
 
+    protected $_annoyingFilenames = array(
+        '.DS_Store', // mac specific
+        '.localized', // mac specific
+        'Thumbs.db' // windows specific
+    );
+
     /**
     * Recursively copy files from one directory to another
     *
@@ -56,17 +62,28 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         $dir = new DirectoryIterator($source);
         foreach($dir as $dirInfo)
         {
+            if ($dirInfo->isDot())
+            {
+                continue;
+            }
+
+            $filename = $dirInfo->getFilename();
+            if (in_array($filename, $this->_annoyingFilenames))
+            {
+                continue;
+            }
+
             if($dirInfo->isFile())
             {
-                $newFilename = $destination . '/' . $dirInfo->getFilename();
+                $newFilename = $destination . '/' . $filename;
                 if (!copy($dirInfo->getRealPath(), $newFilename))
                 {
                     $failedFiles[] = $newFilename;
                 }
             }
-            else if(!$dirInfo->isDot() && $dirInfo->isDir())
+            else if($dirInfo->isDir())
             {
-                $this->_recursiveCopy($dirInfo->getRealPath(), $destination . '/' . $dirInfo, $failedFiles);
+                $this->_recursiveCopy($dirInfo->getRealPath(), $destination . '/' . $filename, $failedFiles);
             }
         }
 
