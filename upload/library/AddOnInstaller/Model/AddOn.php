@@ -37,7 +37,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     * @param String $source - Source of files being moved
     * @param String $destination - Destination of files being moved
     */
-    public function recursiveCopy($source, $destination)
+    public function recursiveCopy($source, $destination, array &$failedFiles)
     {
         if(!is_dir($source))
         {
@@ -48,6 +48,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         {
             if(!XenForo_Helper_File::createDirectory($destination))
             {
+                $failedFiles[] = $destination;
                 return false;
             }
         }
@@ -57,15 +58,50 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         {
             if($dirInfo->isFile())
             {
-                copy($dirInfo->getRealPath(), $destination . '/' . $dirInfo->getFilename());
+                $newFilename = $destination . '/' . $dirInfo->getFilename();
+                if (!copy($dirInfo->getRealPath(), $newFilename))
+                {
+                    $failedFiles[] = $newFilename;
+                }
             }
             else if(!$dirInfo->isDot() && $dirInfo->isDir())
             {
-                $this->recursiveCopy($dirInfo->getRealPath(), $destination . '/' . $dirInfo);
+                $this->recursiveCopy($dirInfo->getRealPath(), $destination . '/' . $dirInfo, $failedFiles);
             }
         }
 
         return true;
+    }
+
+    /**
+    * Reset the entire opcache
+    *
+    * @param string $deployMethod - copy/ftp
+    * @param array $addOnDirs - list of directories to deploy
+    */
+    public function DeployFiles($deployMethod, array $addOnDirs = null)
+    {
+        if ($deployMethod != 'copy')
+            throw new Exception('Not implemented');
+
+        $failedFiles = array();
+        foreach ($addOnDirs AS $key => $dir)
+        {
+            if ($key == 'upload')
+            {
+                $this->recursiveCopy($dir, '.', $failedFiles);
+                break;
+            }
+            elseif ($key == 'maybeLibrary')
+            {
+                $this->recursiveCopy($dir . '/..', './library', $failedFiles);
+            }
+            elseif ($key == 'js' || $key == 'library' || $key == 'styles')
+            {
+                $this->recursiveCopy($dir . '/..', './' . $key, $failedFiles);
+            }
+        }
+        return $failedFiles;
     }
 
     /**
@@ -438,4 +474,124 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
             order by batch.install_date, entry.install_order
         ", 'addon_install_batch_entry_id');
     }
+
+    public function addInstallBatch()
+    {
+        $visitor = XenForo_Visitor::getInstance();
+        $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
+        $dw->set('deploy_method', 'copy');
+        $dw->set('user_id', $visitor['user_id']);
+        $dw->set('username', $visitor['username']);
+        $dw->save();
+
+        return $dw;
+    }
+
+    /**
+    * Adds an addon to an install-batch. If the file is an XML file, it will be parsed and basic info extracted
+    *
+    * @param string $original_filename The human readable name.
+    * @param string $filename Filename of the temp file
+    * @param AddOnInstaller_DataWriter_InstallBatch $batch The install batch (dynamically created as needed)
+    */
+    public function addInstallBatchEntry($original_filename, $filename, AddOnInstaller_DataWriter_InstallBatch &$batch = null)
+    {
+        $original_filename = pathinfo($original_filename, PATHINFO_BASENAME);
+        $extension = strtolower(pathinfo($original_filename, PATHINFO_EXTENSION));
+        if (empty($batch))
+        {
+            $batch = $this->addInstallBatch();
+            $path = 'install/addons/' . $batch->get('addon_install_batch_id') . '/';
+            if (!XenForo_Helper_File::createDirectory($path))
+            {
+                throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions', true));
+            }
+        }
+        else
+        {
+            $path = 'install/addons/' . $batch->get('addon_install_batch_id') . '/';
+        }
+
+        $uniqueId = uniqid('', true);
+        $newfilename = $path . $uniqueId . '.' . $extension;
+
+        if (!XenForo_Helper_File::createDirectory($path. $uniqueId . '/'))
+        {
+            throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions', true));
+        }
+
+        $xmlDetails = null;
+        $error = false;
+        if ($extension == 'xml')
+        {
+            try
+            {
+                $xmlDetails = $this->getXmlType($filename);
+            }
+            catch(Exception $e)
+            {
+                $error = true;
+                XenForo_Error::logException($e, false);
+            }
+        }
+
+        // make sure the XML file is an addon
+        if (isset($xmlDetails['addon_id']) && $xmlDetails['type'] != 'addon')
+        {
+            $error = true;
+            $xmlDetails = null;
+        }
+
+        $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
+        $dw->InstallBatch = $batch;
+        $dw->set('addon_install_batch_id', $batch->get('addon_install_batch_id'));
+        if ($error)
+        {
+            $dw->set('in_error', 1);
+        }
+        if (isset($xmlDetails['addon_id']))
+        {
+            $dw->set('install_phase', 'deployed');
+            $dw->set('addon_id', $xmlDetails['addon_id']);
+            $dw->set('version_string', $xmlDetails['version_string']);
+            $dw->set('resource_url', $xmlDetails['resource_url']);
+            $dw->set('xml_file', $newfilename);
+        }
+        $dw->set('original_filename', $original_filename);
+        $dw->set('source_file', $newfilename);
+        $dw->save();
+
+        if (!XenForo_Helper_File::safeRename($filename, $newfilename))
+        {
+            throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions', true));
+        }
+
+        return $dw->get('addon_install_batch_entry_id');
+    }
+
+    /**
+    * Marks an install batch as complete if all the addons in the batch installed sucessfully
+    */
+    public function completeInstallBatch($addon_install_batch_id)
+    {
+        $batch = $this->getInstallBatchById($addon_install_batch_id);
+        $entries = $this->getInstallBatchEntrysById($addon_install_batch_id);
+        $all_installed = true;
+        foreach($entries as &$entry)
+        {
+            if ($entry['in_error'] || $entry['install_phase'] != 'installed')
+            {
+                $all_installed = false;
+                break;
+            }
+        }
+
+        $installBatch = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
+        $installBatch->setExistingData($batch);
+        $installBatch->set('is_completed', $all_installed);
+        $installBatch->save();
+
+        return true;
+    }
+
 }

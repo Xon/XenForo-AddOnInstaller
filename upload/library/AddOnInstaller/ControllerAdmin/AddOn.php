@@ -28,94 +28,6 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         return $this->responseView('AddOnInstaller_ViewAdmin_Install', 'addon_install_auto', $viewParams);
     }
 
-    protected function addInstallBatch()
-    {
-        $visitor = XenForo_Visitor::getInstance();
-        $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
-        $dw->set('deploy_method', 'copy');
-        $dw->set('user_id', $visitor['user_id']);
-        $dw->set('username', $visitor['username']);
-        $dw->save();
-
-        return $dw;
-    }
-
-    protected function addInstallBatchEntry($original_filename, $filename, AddOnInstaller_DataWriter_InstallBatch &$batch = null)
-    {
-        $original_filename = pathinfo($original_filename, PATHINFO_BASENAME);
-        $extension = strtolower(pathinfo($original_filename, PATHINFO_EXTENSION));
-        if (empty($batch))
-        {
-            $batch = $this->addInstallBatch();
-            $path = 'install/addons/' . $batch->get('addon_install_batch_id') . '/';
-            if (!XenForo_Helper_File::createDirectory($path))
-            {
-                throw $this->getErrorOrNoPermissionResponseException('could_not_create_directory_permissions');
-            }
-        }
-        else
-        {
-            $path = 'install/addons/' . $batch->get('addon_install_batch_id') . '/';
-        }
-
-        $uniqueId = uniqid('', true);
-        $newfilename = $path . $uniqueId . '.' . $extension;
-
-        if (!XenForo_Helper_File::createDirectory($path. $uniqueId . '/'))
-        {
-            throw $this->getErrorOrNoPermissionResponseException('could_not_create_directory_permissions');
-        }
-
-        $xmlDetails = null;
-        $error = false;
-        if ($extension == 'xml')
-        {
-            $addOnModel = $this->_getAddOnModel();
-            try
-            {
-                $xmlDetails = $addOnModel->getXmlType($filename);
-            }
-            catch(Exception $e)
-            {
-                $error = true;
-                XenForo_Error::logException($e, false);
-            }
-        }
-
-        // make sure the XML file is an addon
-        if (isset($xmlDetails['addon_id']) && $xmlDetails['type'] != 'addon')
-        {
-            $error = true;
-            $xmlDetails = null;
-        }
-
-        $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
-        $dw->InstallBatch = $batch;
-        $dw->set('addon_install_batch_id', $batch->get('addon_install_batch_id'));
-        if ($error)
-        {
-            $dw->set('in_error', 1);
-        }
-        if (isset($xmlDetails['addon_id']))
-        {
-            $dw->set('install_phase', 'deployed');
-            $dw->set('addon_id', $xmlDetails['addon_id']);
-            $dw->set('version_string', $xmlDetails['version_string']);
-            $dw->set('resource_url', $xmlDetails['resource_url']);
-            $dw->set('xml_file', $newfilename);
-        }
-        $dw->set('original_filename', $original_filename);
-        $dw->set('source_file', $newfilename);
-        $dw->save();
-
-        if (!XenForo_Helper_File::safeRename($filename, $newfilename))
-        {
-            throw $this->getErrorOrNoPermissionResponseException('could_not_create_directory_permissions');
-        }
-
-        return $dw->get('addon_install_batch_entry_id');
-    }
-
     public function _assertInstallBatchOpen($addon_install_batch_id)
     {
         if (!$addon_install_batch_id)
@@ -258,7 +170,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
             try
             {
-                $addon_install_batch_entry_id = $this->addInstallBatchEntry($filename, $newTempFile, $installBatch);
+                $addon_install_batch_entry_id = $addOnModel->addInstallBatchEntry($filename, $newTempFile, $installBatch);
                 $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
                 $dw->setExistingData($addon_install_batch_entry_id);
                 $dw->set('resource_url', $resourceUrl);
@@ -277,7 +189,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 if (empty($fileInfo['error'])) //verify no errors e.g. file not exist
                 {
                     $fileName = $fileInfo['tmp_name'];
-                    $this->addInstallBatchEntry($fileInfo['name'], $fileName, $installBatch);
+                    $addOnModel->addInstallBatchEntry($fileInfo['name'], $fileName, $installBatch);
                 }
             }
         }
@@ -288,7 +200,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             try
             {
                 copy($fileName, $newTempFile);
-                $this->addInstallBatchEntry($fileName, $newTempFile, $installBatch);
+                $addOnModel->addInstallBatchEntry($fileName, $newTempFile, $installBatch);
             }
             catch(Exception $e)
             {
@@ -500,26 +412,9 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                     }
                 }
 
-                $copiedFiles = array();
                 try
                 {
-                    foreach ($addOnDirs AS $key => $dir)
-                    {
-                        if ($key == 'upload')
-                        {
-                            $copiedFiles['upload'] = $addOnModel->recursiveCopy($dir, '.');
-
-                            break;
-                        }
-                        elseif ($key == 'maybeLibrary')
-                        {
-                            $addOnModel->recursiveCopy($dir . '/..', './library');
-                        }
-                        elseif ($key == 'js' || $key == 'library' || $key == 'styles')
-                        {
-                            $addOnModel->recursiveCopy($dir . '/..', './' . $key);
-                        }
-                    }
+                    $failedFiles = $addOnModel->DeployFiles($batch['deploy_method'], $addOnDirs);
                 }
                 catch(Exception $e)
                 {
@@ -590,11 +485,11 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 $addOnExists = $addOnModel->getAddOnById($xmlFile['addon_id']);
                 if ($addOnExists)
                 {
-                    $caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
+                    $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
                 }
                 else
                 {
-                    $caches = $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
+                    $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
                 }
             }
             catch(Exception $e)
@@ -644,12 +539,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             );
         }
 
-        // done, close the install-batch
-        $batch = $addOnModel->getInstallBatchById($addon_install_batch_id);
-        $installBatch = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
-        $installBatch->setExistingData($batch);
-        $installBatch->set('is_completed', 1);
-        $installBatch->save();
+        $caches = $addOnModel->completeInstallBatch($addon_install_batch_id);
 
         return XenForo_CacheRebuilder_Abstract::getRebuilderResponse(
             $this, $caches,
