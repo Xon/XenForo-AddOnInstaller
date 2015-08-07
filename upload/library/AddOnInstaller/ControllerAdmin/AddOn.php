@@ -413,7 +413,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
                 try
                 {
-                    $failedFiles = $addOnModel->DeployFiles($batch['deploy_method'], $addOnDirs);
+                    $failedFiles = $addOnModel->deployFiles($batch['deploy_method'], $addOnDirs);
                 }
                 catch(Exception $e)
                 {

@@ -37,7 +37,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     * @param String $source - Source of files being moved
     * @param String $destination - Destination of files being moved
     */
-    public function recursiveCopy($source, $destination, array &$failedFiles)
+    protected function _recursiveCopy($source, $destination, array &$failedFiles)
     {
         if(!is_dir($source))
         {
@@ -66,7 +66,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
             }
             else if(!$dirInfo->isDot() && $dirInfo->isDir())
             {
-                $this->recursiveCopy($dirInfo->getRealPath(), $destination . '/' . $dirInfo, $failedFiles);
+                $this->_recursiveCopy($dirInfo->getRealPath(), $destination . '/' . $dirInfo, $failedFiles);
             }
         }
 
@@ -79,7 +79,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     * @param string $deployMethod - copy/ftp
     * @param array $addOnDirs - list of directories to deploy
     */
-    public function DeployFiles($deployMethod, array $addOnDirs = null)
+    public function deployFiles($deployMethod, array $addOnDirs = null)
     {
         if ($deployMethod != 'copy')
             throw new Exception('Not implemented');
@@ -89,16 +89,16 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         {
             if ($key == 'upload')
             {
-                $this->recursiveCopy($dir, '.', $failedFiles);
+                $this->_recursiveCopy($dir, '.', $failedFiles);
                 break;
             }
             elseif ($key == 'maybeLibrary')
             {
-                $this->recursiveCopy($dir . '/..', './library', $failedFiles);
+                $this->_recursiveCopy($dir . '/..', './library', $failedFiles);
             }
             elseif ($key == 'js' || $key == 'library' || $key == 'styles')
             {
-                $this->recursiveCopy($dir . '/..', './' . $key, $failedFiles);
+                $this->_recursiveCopy($dir . '/..', './' . $key, $failedFiles);
             }
         }
         return $failedFiles;
