@@ -115,58 +115,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 }
             }
 
-            $client = XenForo_Helper_Http::getClient('https://xenforo.com/community/login/login');
-
-            $client->setCookieJar();
-
-            $client->setParameterPost(array('login' => $username, 'password' => $password, 'redirect' => $resourceUrl));
-
-            $login = $client->request('POST');
-
-            $dom = new Zend_Dom_Query($login->getBody());
-            $loggedIn = $dom->query('html .LoggedIn');
-
-            if (!$loggedIn->count())
-            {
-                return $this->responseError(new XenForo_Phrase('login_to_xenforo_has_failed'));
-            }
-
-            $downloadButton = $dom->query('.downloadButton a');
-
-            if (!$downloadButton->count())
-            {
-                return $this->responseError(new XenForo_Phrase('problem_accessing_resource_page'));
-            }
-
-            $downloadUrl = $downloadButton->current()->getAttribute('href');
-
-            if (!$addOnModel->isDownloadUrl($downloadUrl))
-            {
-                return $this->responseError(new XenForo_Phrase('no_download_url_found_maybe_paid'));
-            }
-
-            $client->setUri('https://xenforo.com/community/' . $downloadUrl);
-
-            $response = $client->request('GET');
-            $content_disposition = $response->getHeader("Content-Disposition");
-            if(preg_match('/.*filename=[\'\"]([^\'\"]+)/', $content_disposition, $matches))
-            {
-                $filename = $matches[1];
-            }
-            // if filename is not quoted, we take all until the next space
-            else if(preg_match("/.*filename=([^ ]+)/", $content_disposition, $matches))
-            {
-                $filename = $matches[1];
-            }
-            else
-            {
-                return $this->responseError(new XenForo_Phrase('problem_accessing_resource_page'));
-            }
-            $newTempFile = tempnam(XenForo_Helper_File::getTempDir(), 'xf');
-            $fp = fopen($newTempFile, 'w');
-            fwrite($fp, $response->getRawBody());
-            fclose($fp);
-
+            list($reponse, $newTempFile, $filename) = $addOnModel->downloadResourceFromUrl($username, $password, $resourceUrl);
             try
             {
                 $addon_install_batch_entry_id = $addOnModel->addInstallBatchEntry($filename, $newTempFile, $installBatch);

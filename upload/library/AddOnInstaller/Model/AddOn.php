@@ -438,6 +438,72 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         return $this->getModelFromCache('XenForo_Model_Option')->rebuildOptionCache();
     }
 
+    protected function downloadResourceManagerRelease($username, $password, $resourceUrl)
+    {
+        $client = XenForo_Helper_Http::getClient('https://xenforo.com/community/login/login');
+
+        $client->setCookieJar();
+
+        $client->setParameterPost(array('login' => $username, 'password' => $password, 'redirect' => $resourceUrl));
+
+        $login = $client->request('POST');
+
+        $dom = new Zend_Dom_Query($login->getBody());
+        $loggedIn = $dom->query('html .LoggedIn');
+
+        if (!$loggedIn->count())
+        {
+            throw new XenForo_Exception(new XenForo_Phrase('login_to_xenforo_has_failed', true));
+        }
+
+        $downloadButton = $dom->query('.downloadButton a');
+
+        if (!$downloadButton->count())
+        {
+            throw new XenForo_Exception(new XenForo_Phrase('problem_accessing_resource_page', true));
+        }
+
+        $downloadUrl = $downloadButton->current()->getAttribute('href');
+
+        if (!$addOnModel->isDownloadUrl($downloadUrl))
+        {
+            throw new XenForo_Exception(new XenForo_Phrase('no_download_url_found_maybe_paid', true));
+        }
+
+        $client->setUri('https://xenforo.com/community/' . $downloadUrl);
+
+        $response = $client->request('GET');
+        $content_disposition = $response->getHeader("Content-Disposition");
+        if(preg_match('/.*filename=[\'\"]([^\'\"]+)/', $content_disposition, $matches))
+        {
+            $filename = $matches[1];
+        }
+        // if filename is not quoted, we take all until the next space
+        else if(preg_match("/.*filename=([^ ]+)/", $content_disposition, $matches))
+        {
+            $filename = $matches[1];
+        }
+        else
+        {
+            throw new XenForo_Exception(new XenForo_Phrase('problem_accessing_resource_page', true));
+        }
+        $newTempFile = tempnam(XenForo_Helper_File::getTempDir(), 'xf');
+        $fp = fopen($newTempFile, 'w');
+        fwrite($fp, $response->getRawBody());
+        fclose($fp);
+
+        return array($reponse, $newTempFile, $filename);
+    }
+
+    public function downloadResourceFromUrl($username, $password, $resourceUrl)
+    {
+        if (!$this->isResourceUrl($resourceUrl))
+        {
+            throw new XenForo_Exception(new XenForo_Phrase('only_resource_manager_urls_are_valid'), true);
+        }
+        return $this->downloadResourceManagerRelease($username, $password, $resourceUrl);
+    }
+
     public function deleteAddOnUpdates($addOnId)
     {
         $db = $this->_getDb();
