@@ -6,12 +6,12 @@ class AddOnInstaller_Install
     {
         if (XenForo_Application::$versionId < 1020070)
         {
-            throw new XenForo_Exception("Minimum supported version is XF 1.2.0");
+            throw new XenForo_Exception("Minimum supported version is XF 1.2.0"), true);
         }
 
         if (!extension_loaded('zip'))
         {
-            throw new XenForo_Exception("This addon requires ZipArchive support. This requires the 'zip' extension, which your host must be configured with.");
+            throw new XenForo_Exception("This addon requires ZipArchive support. This requires the 'zip' extension, which your host must be configured with."), true);
         }
 
         $version = isset($existingAddOn['version_id']) ? $existingAddOn['version_id'] : 0;

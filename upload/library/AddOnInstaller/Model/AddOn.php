@@ -453,21 +453,21 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
         if (!$loggedIn->count())
         {
-            throw new XenForo_Exception(new XenForo_Phrase('login_to_xenforo_has_failed', true));
+            throw new XenForo_Exception(new XenForo_Phrase('login_to_xenforo_has_failed'), true);
         }
 
         $downloadButton = $dom->query('.downloadButton a');
 
         if (!$downloadButton->count())
         {
-            throw new XenForo_Exception(new XenForo_Phrase('problem_accessing_resource_page', true));
+            throw new XenForo_Exception(new XenForo_Phrase('problem_accessing_resource_page'), true);
         }
 
         $downloadUrl = $downloadButton->current()->getAttribute('href');
 
         if (!$addOnModel->isDownloadUrl($downloadUrl))
         {
-            throw new XenForo_Exception(new XenForo_Phrase('no_download_url_found_maybe_paid', true));
+            throw new XenForo_Exception(new XenForo_Phrase('no_download_url_found_maybe_paid'), true);
         }
 
         $client->setUri('https://xenforo.com/community/' . $downloadUrl);
@@ -485,7 +485,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         }
         else
         {
-            throw new XenForo_Exception(new XenForo_Phrase('problem_accessing_resource_page', true));
+            throw new XenForo_Exception(new XenForo_Phrase('problem_accessing_resource_page'), true);
         }
         $newTempFile = tempnam(XenForo_Helper_File::getTempDir(), 'xf');
         $fp = fopen($newTempFile, 'w');
@@ -589,7 +589,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
             $path = 'install/addons/' . $batch->get('addon_install_batch_id') . '/';
             if (!XenForo_Helper_File::createDirectory($path))
             {
-                throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions', true));
+                throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions'), true);
             }
         }
         else
@@ -602,7 +602,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
         if (!XenForo_Helper_File::createDirectory($path. $uniqueId . '/'))
         {
-            throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions', true));
+            throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions'), true);
         }
 
         $xmlDetails = null;
@@ -648,7 +648,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
         if (!XenForo_Helper_File::safeRename($filename, $newfilename))
         {
-            throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions', true));
+            throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions'), true);
         }
 
         return $dw->get('addon_install_batch_entry_id');
