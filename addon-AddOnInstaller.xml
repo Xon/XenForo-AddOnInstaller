@@ -451,11 +451,11 @@ $1]]></replace>
     <phrase title="addon_installer_option2" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Option 2: <i>I haven't yet downloaded the ZIP file. Get it for me.</i>]]></phrase>
     <phrase title="addon_installer_option3" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Option 3: <i>I'm old school. I have uploaded the files myself. Here's an XML file</i>:]]></phrase>
     <phrase title="addon_install_batch_completed" version_id="1030000" version_string="1.3.0"><![CDATA[Add-on install batch is completed]]></phrase>
-    <phrase title="addon_install_log" version_id="1030000" version_string="1.3.0"><![CDATA[Addon Install Log]]></phrase>
+    <phrase title="addon_install_log" version_id="1030000" version_string="1.3.0"><![CDATA[Add-on Install Log]]></phrase>
     <phrase title="addon_start_install" version_id="1030000" version_string="1.3.0"><![CDATA[Confirm & start installing]]></phrase>
     <phrase title="addon_update_has_been_skipped" version_id="10" version_string="1.0.0 RC4"><![CDATA[Add-on update has been ignored]]></phrase>
     <phrase title="add_ons_to_install_or_upgrade" version_id="1030000" version_string="1.3.0"><![CDATA[Add-ons to install or Upgrade]]></phrase>
-    <phrase title="admin_navigation_AddonInstallLog" version_id="1030000" version_string="1.3.0"><![CDATA[Addon Install Log]]></phrase>
+    <phrase title="admin_navigation_AddonInstallLog" version_id="1030000" version_string="1.3.0"><![CDATA[Add-on Install Log]]></phrase>
     <phrase title="admin_navigation_InstallUpgrade" version_id="2" version_string="0.2"><![CDATA[Install & Upgrade]]></phrase>
     <phrase title="admin_navigation_UpdateCheck" version_id="6" version_string="1.0.0"><![CDATA[Update Checker {updates}]]></phrase>
     <phrase title="an_unexpected_error_occurred_while_extracting_addons" version_id="1000470" version_string="1.0.4"><![CDATA[An unexpected error occurred while extracting add-ons. Make sure the install/addons directory exists and is writable. If it is, you may have some other permissions related problems that you should consult your host or server person about.]]></phrase>
@@ -488,8 +488,8 @@ $1]]></replace>
     <phrase title="no_updates_configured" version_id="6" version_string="1.0.0"><![CDATA[No updates are configured for this add-on]]></phrase>
     <phrase title="no_upload_directory_found" version_id="1" version_string="0.1"><![CDATA[There is no upload directory found within this archive. This add-on does not support the Add-on Installer.]]></phrase>
     <phrase title="only_resource_manager_urls_are_valid" version_id="9" version_string="1.0.0 RC3"><![CDATA[Only proper Resource Manager URLs are valid]]></phrase>
-    <phrase title="option_addoninstaller_check_update" version_id="1020000" version_string="1.2.0"><![CDATA[Check for Addon Updates]]></phrase>
-    <phrase title="option_addoninstaller_check_update_explain" version_id="1020000" version_string="1.2.0"><![CDATA[Periodically check for addon updates.]]></phrase>
+    <phrase title="option_addoninstaller_check_update" version_id="1020000" version_string="1.2.0"><![CDATA[Check for Add-on Updates]]></phrase>
+    <phrase title="option_addoninstaller_check_update_explain" version_id="1020000" version_string="1.2.0"><![CDATA[Periodically check for add-on updates.]]></phrase>
     <phrase title="option_group_addOnInstaller" version_id="1020000" version_string="1.2.0"><![CDATA[Add-on Installer & Upgrade]]></phrase>
     <phrase title="option_group_addOnInstaller_description" version_id="1020000" version_string="1.2.0"><![CDATA[]]></phrase>
     <phrase title="option_xenforoRmLoginPassword" version_id="11" version_string="1.0.0 RC5"><![CDATA[XenForo Password]]></phrase>
