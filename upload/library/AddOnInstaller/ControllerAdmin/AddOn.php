@@ -162,19 +162,14 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             return $this->responseError(new XenForo_Phrase('an_unexpected_error_occurred_while_extracting_addons'));
         }
 
-        if ($this->isConfirmedPost())
-        {
-            return $this->responseRedirect(
-                XenForo_ControllerResponse_Redirect::SUCCESS,
-                XenForo_Link::buildAdminLink('add-ons/step-extract', array(), array('addon_install_batch_id' => $installBatch->get('addon_install_batch_id')))
-            );
-        }
+        $next_phase = $this->isConfirmedPost()
+                        ? 'step-extract'
+                        : 'install-upgrade';
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
-            XenForo_Link::buildAdminLink('add-ons/install-upgrade', array(), array('addon_install_batch_id' => $installBatch->get('addon_install_batch_id')))
+            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id))
         );
-
     }
 
     protected $MaximumRuntime = 30 * 1000000;
@@ -223,14 +218,11 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
             $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
             $dw->setExistingData($entry);
+            $dw->set('in_error', $error);
             if (!$error)
             {
                 $dw->set('install_phase', 'extracted');
                 $dw->set('extracted_files', $newFiles);
-            }
-            else
-            {
-                $dw->set('in_error', 1);
             }
 
             $dw->save();
@@ -379,11 +371,8 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 $dw->set('version_string', $xmlFile['version_string']);
                 $dw->set('resource_url', $xmlFile['resource_url']);
             }
-            if ($error)
-            {
-                $dw->set('in_error', 1);
-            }
-            else
+            $dw->set('in_error', 1);
+            if (!$error)
             {
                 $dw->set('install_phase', 'deployed');
             }
@@ -414,76 +403,73 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         $options->set('addoninstaller_supress_cache_rebuild', true);
         try
         {
-        foreach($entries as &$entry)
-        {
-            if (microtime(true) - $start > $this->MaximumRuntime )
+            foreach($entries as &$entry)
             {
-                $next_phase = 'step-install';
-                break;
-            }
-            if ($entry['install_phase'] != 'deployed' || $entry['in_error'])
-            {
-                continue;
-            }
-            $installed_addons = true;
-
-            $xmlFile = array(
-                'path' => $entry['xml_file'],
-                'addon_id' => $entry['addon_id'],
-                'version_string' => $entry['version_string']
-            );
-
-            $error = false;
-            try
-            {
-                $addOnExists = $addOnModel->getAddOnById($xmlFile['addon_id']);
-                if ($addOnExists)
+                if (microtime(true) - $start > $this->MaximumRuntime )
                 {
-                    $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
+                    $next_phase = 'step-install';
+                    break;
                 }
-                else
+                if ($entry['install_phase'] != 'deployed' || $entry['in_error'])
                 {
-                    $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
+                    continue;
                 }
-            }
-            catch(Exception $e)
-            {
-                XenForo_Error::logException($e, false);
-                $error = true;
-            }
-            $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
-            $dw->setExistingData($entry);
-            if ($error)
-            {
-                $dw->set('in_error', 1);
-            }
-            else
-            {
-                $dw->set('install_phase', 'installed');
-            }
-            $dw->save();
+                $installed_addons = true;
 
-            $data = array(
-                'addon_id' => $xmlFile['addon_id'],
-                'update_url' => $addOnModel->isResourceUrl($dw->get('resource_url')) ? $dw->get('resource_url') : '',
-                'check_updates' => 1,
-                'last_checked' => XenForo_Application::$time,
-                'latest_version' => $xmlFile['version_string']
-            );
+                $xmlFile = array(
+                    'path' => $entry['xml_file'],
+                    'addon_id' => $entry['addon_id'],
+                    'version_string' => $entry['version_string']
+                );
 
-            $writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
+                $error = false;
+                try
+                {
+                    $addOnExists = $addOnModel->getAddOnById($xmlFile['addon_id']);
+                    if ($addOnExists)
+                    {
+                        $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
+                    }
+                    else
+                    {
+                        $addOnModel->installAddOnXmlFromFile($xmlFile['path']);
+                    }
+                }
+                catch(Exception $e)
+                {
+                    XenForo_Error::logException($e, false);
+                    $error = true;
+                }
+                $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
+                $dw->setExistingData($entry);
+                $dw->set('in_error', $error);
+                if (!$error)
+                {
+                    $dw->set('install_phase', 'installed');
+                }
+                $dw->save();
 
-            if ($addOnModel->isDwUpdate($data['addon_id']))
-            {
-                $writer->setExistingData($data['addon_id']);
+                $data = array(
+                    'addon_id' => $xmlFile['addon_id'],
+                    'update_url' => $addOnModel->isResourceUrl($dw->get('resource_url')) ? $dw->get('resource_url') : '',
+                    'check_updates' => 1,
+                    'last_checked' => XenForo_Application::$time,
+                    'latest_version' => $xmlFile['version_string']
+                );
+
+                $writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
+
+                if ($addOnModel->isDwUpdate($data['addon_id']))
+                {
+                    $writer->setExistingData($data['addon_id']);
+                }
+
+                $writer->bulkSet($data);
+                $writer->save();
+
+                // cleanup
+                $addOnModel->deleteAll($entry['extracted_files']);
             }
-
-            $writer->bulkSet($data);
-            $writer->save();
-
-            // cleanup
-            $addOnModel->deleteAll($entry['extracted_files']);
-        }
         }
         catch(Exception $e)
         {
