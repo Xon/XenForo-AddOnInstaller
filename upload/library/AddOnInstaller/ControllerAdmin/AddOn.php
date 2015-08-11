@@ -172,7 +172,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         );
     }
 
-    protected $MaximumRuntime = 30 * 1000000;
+    protected $MaximumRuntime = 30000000;
 
     public function actionStepExtract()
     {
