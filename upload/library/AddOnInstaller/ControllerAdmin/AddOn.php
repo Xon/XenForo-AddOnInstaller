@@ -168,7 +168,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
-            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id))
+            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $installBatch->get('addon_install_batch_id')))
         );
     }
 
@@ -371,7 +371,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 $dw->set('version_string', $xmlFile['version_string']);
                 $dw->set('resource_url', $xmlFile['resource_url']);
             }
-            $dw->set('in_error', 1);
+            $dw->set('in_error', $error);
             if (!$error)
             {
                 $dw->set('install_phase', 'deployed');
