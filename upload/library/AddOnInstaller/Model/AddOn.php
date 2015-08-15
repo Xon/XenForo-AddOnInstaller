@@ -128,7 +128,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     *
     * @param string $file The file to reset.
     */
-    public static function InvalidateOpCache()
+    public function InvalidateOpCache()
     {
         // opcache
         if (function_exists('opcache_reset'))
