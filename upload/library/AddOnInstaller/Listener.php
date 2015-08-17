@@ -34,6 +34,11 @@ class AddOnInstaller_Listener
         return "[$updateCount]";
     }
 
+    public static function addon_deployment($deployMethod, &$deployMethodClass)
+    {
+        $deployMethodClass = 'AddOnInstaller_Model_Deployment_' . $deployMethod;
+    }
+
     public static function load_class($class, array &$extend)
     {
         $extend[] = str_replace('XenForo_', 'AddOnInstaller_', $class) ;

@@ -95,7 +95,6 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
         $addOnModel = $this->_getAddOnModel();
         $fileTransfer = new Zend_File_Transfer_Adapter_Http();
-        $deployMethod = $this->_input->filterSingle('deploy_method', XenForo_Input::STRING);
         $resourceUrl = $this->_input->filterSingle('resource_url', XenForo_Input::STRING);
 
         $installBatch = null;
@@ -261,6 +260,8 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
         $next_phase = 'step-install';
         $start = microtime(true);
+
+        $addonDeployer = $addOnModel->getAddonDeployer($batch['deploy_method']);
         foreach($entries as &$entry)
         {
             if (microtime(true) - $start > $this->MaximumRuntime )
@@ -369,9 +370,11 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                     }
                 }
 
+                $addonDeployer->start($addOnModel);
+
                 try
                 {
-                    $failedFiles = $addOnModel->deployFiles($batch['deploy_method'], $addOnDirs);
+                    $failedFiles = $addOnModel->deployFiles($addonDeployer, $addOnDirs);
                 }
                 catch(Exception $e)
                 {
@@ -395,8 +398,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             }
             $dw->save();
         }
-
-        $addOnModel->InvalidateOpCache();
+        $addonDeployer->stop();
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,

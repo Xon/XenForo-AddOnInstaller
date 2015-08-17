@@ -33,12 +33,19 @@ class AddOnInstaller_Install
             `install_date` int(3) unsigned NOT NULL DEFAULT 0,
             `addon_count` int(10) unsigned NOT NULL DEFAULT 0,
             `is_completed` tinyint(3) unsigned NOT NULL DEFAULT 0,
-            `deploy_method` enum('copy','ftp') NOT NULL DEFAULT 'copy',
+            `deploy_method` VARCHAR(50) NOT NULL DEFAULT 'copy',
             `user_id` int(10) unsigned NOT NULL DEFAULT 0,
             `username` VARCHAR(50) NOT NULL DEFAULT '',
             PRIMARY KEY (`addon_install_batch_id`),
             KEY (`install_date`)
         ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
+
+        if ($version == 1030000)
+        {
+            $db->query("
+                ALTER TABLE `xf_addon_install_batch` CHANGE COLUMN `deploy_method` `deploy_method` VARCHAR(50) NOT NULL DEFAULT 'copy' ;
+            ");
+        }
 
         $db->query("
             CREATE TABLE IF NOT EXISTS `xf_addon_install_batch_entry` (

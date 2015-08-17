@@ -46,17 +46,18 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     *
     * @param String $source - Source of files being moved
     * @param String $destination - Destination of files being moved
+    * @param Array $failedFiles - list of files which failed to copy
     */
-    protected function _recursiveCopy($source, $destination, array &$failedFiles)
+    protected function _recursiveCopy(AddOnInstaller_Model_Deployment_Abstract $deployer, $source, $destination, array &$failedFiles)
     {
         if(!is_dir($source))
         {
             return false;
         }
 
-        if(!is_dir($destination))
+        if(!$deployer->is_dir($destination))
         {
-            if(!XenForo_Helper_File::createDirectory($destination))
+            if(!$deployer->mkdir($destination))
             {
                 $failedFiles[] = $destination;
                 return false;
@@ -80,14 +81,14 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
             if($dirInfo->isFile())
             {
                 $newFilename = $destination . '/' . $filename;
-                if (!copy($dirInfo->getRealPath(), $newFilename))
+                if (!$deployer->copy($dirInfo->getRealPath(), $newFilename))
                 {
                     $failedFiles[] = $newFilename;
                 }
             }
             else if($dirInfo->isDir())
             {
-                $this->_recursiveCopy($dirInfo->getRealPath(), $destination . '/' . $filename, $failedFiles);
+                $this->_recursiveCopy($deployer, $dirInfo->getRealPath(), $destination . '/' . $filename, $failedFiles);
             }
         }
 
@@ -95,33 +96,53 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     }
 
     /**
-    * Reset the entire opcache
+    * Gets the specific class which implements a deployment method
     *
-    * @param string $deployMethod - copy/ftp
+    * @param string $deployMethod
+    */
+    public function getAddonDeployer($deployMethod)
+    {
+        // resolve the deployment method
+        $deployMethodClass = '';
+        XenForo_CodeEvent::fire('addon_deployment', array($deployMethod, &$deployMethodClass), $deployMethod);
+        if (!empty($deployMethodClass))
+        {
+            $deployMethodClass = XenForo_Application::resolveDynamicClass($deployMethodClass);
+        }
+        if (empty($deployMethodClass) || !class_exists($deployMethodClass))
+        {
+            throw new XenForo_Exception(new XenForo_Phrase('deployment_method_x_not_implemented', array('method' => $deployMethod), true));
+        }
+        return new $deployMethodClass();
+    }
+
+    /**
+    * Deploys a set of files using a given deployment agent, reporting the ones which failed.
+    *
+    * @param string $addonDeployer - the addon deployment implementation to use
     * @param array $addOnDirs - list of directories to deploy
     */
-    public function deployFiles($deployMethod, array $addOnDirs = null)
+    public function deployFiles(AddOnInstaller_Model_Deployment_Abstract $addonDeployer, array $addOnDirs = null)
     {
-        if ($deployMethod != 'copy')
-            throw new Exception('Not implemented');
-
+        // deploy the files
         $failedFiles = array();
         foreach ($addOnDirs AS $key => $dir)
         {
             if ($key == 'upload')
             {
-                $this->_recursiveCopy($dir, '.', $failedFiles);
+                $this->_recursiveCopy($addonDeployer, $dir, '.', $failedFiles);
                 break;
             }
             elseif ($key == 'maybeLibrary')
             {
-                $this->_recursiveCopy($dir . '/..', './library', $failedFiles);
+                $this->_recursiveCopy($addonDeployer, $dir . '/..', './library', $failedFiles);
             }
             elseif ($key == 'js' || $key == 'library' || $key == 'styles')
             {
-                $this->_recursiveCopy($dir . '/..', './' . $key, $failedFiles);
+                $this->_recursiveCopy($addonDeployer, $dir . '/..', './' . $key, $failedFiles);
             }
         }
+
         return $failedFiles;
     }
 
@@ -593,7 +614,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     {
         $visitor = XenForo_Visitor::getInstance();
         $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
-        $dw->set('deploy_method', 'copy');
+        $dw->set('deploy_method', XenForo_Application::getOptions()->deploymentmethod['method']);
         $dw->set('user_id', $visitor['user_id']);
         $dw->set('username', $visitor['username']);
         $dw->save();
