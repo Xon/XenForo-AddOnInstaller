@@ -299,6 +299,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 }
             }
             $error = false;
+            $failedFiles = array();
             if (!$xmlFile)
             {
                 $error = true;
@@ -382,6 +383,13 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                     $error = true;
                 }
             }
+            if ($failedFiles)
+            {
+                $error = true;
+                $next_phase = 'install-upgrade';
+                XenForo_Error::logException(new Exception('Failed to write to the files:'. var_export($failedFiles, true)), false);
+            }
+
             $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
             $dw->setExistingData($entry);
             if ($xmlFile)
