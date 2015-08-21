@@ -71,6 +71,15 @@ class AddOnInstaller_Install
                 $cronEntry[0] = json_encode($entry);
             }
         }
+
+        // if this addon is disabled, and then upgraded via XenForo addon upgrade proccess, 
+        // the method that is expected to exist will not.
+        $addOnModel = XenForo_Model::create("XenForo_Model_AddOn");
+        if (method_exists($addOnModel, 'bulkUpdateAddOnCheck'))
+        {
+            // scan existing addons and load their url if it looks like something we support updating from.
+            $addOnModel->bulkUpdateAddOnCheck();
+        }
     }
 
     public static function uninstaller()
