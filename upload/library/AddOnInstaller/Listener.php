@@ -34,9 +34,16 @@ class AddOnInstaller_Listener
         return "[$updateCount]";
     }
 
-    public static function addon_deployment($deployMethod, &$deployMethodClass)
+    public static function addon_deployment(&$deployMethods)
     {
-        $deployMethodClass = 'AddOnInstaller_Model_Deployment_' . $deployMethod;
+        $builtins = XenForo_Application::getOptions()->builtin_deploymentmethods;
+        foreach($builtins as $deployMethod => $enabled)
+        {
+            if ($enabled)
+            {
+                $deployMethods[$deployMethod] = 'AddOnInstaller_Model_Deployment_' . $deployMethod;
+            }
+        }
     }
 
     public static function load_class($class, array &$extend)

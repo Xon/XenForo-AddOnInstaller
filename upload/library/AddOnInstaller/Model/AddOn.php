@@ -95,6 +95,13 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         return true;
     }
 
+    public function getAddonDeploymentMethods()
+    {
+        $deployMethods = array();
+        XenForo_CodeEvent::fire('addon_deployment', array(&$deployMethods));
+        return $deployMethods;
+    }
+
     /**
     * Gets the specific class which implements a deployment method
     *
@@ -103,8 +110,8 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     public function getAddonDeployer($deployMethod)
     {
         // resolve the deployment method
-        $deployMethodClass = '';
-        XenForo_CodeEvent::fire('addon_deployment', array($deployMethod, &$deployMethodClass), $deployMethod);
+        $methods = $this->getAddonDeploymentMethods();
+        $deployMethodClass = isset($methods[$deployMethod]) ? $methods[$deployMethod] : '';
         if (!empty($deployMethodClass))
         {
             $deployMethodClass = XenForo_Application::resolveDynamicClass($deployMethodClass);
@@ -612,9 +619,16 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
     public function addInstallBatch()
     {
+        // make sure the selected deployment method is valid and implemented
+        $method = XenForo_Application::getOptions()->deploymentmethod;
+        if (empty($method))
+        {
+            throw new XenForo_Exception(new XenForo_Phrase('no_deployment_method_set'), true);
+        }
+        $deployer = $this->getAddonDeployer($method);
         $visitor = XenForo_Visitor::getInstance();
         $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
-        $dw->set('deploy_method', XenForo_Application::getOptions()->deploymentmethod['method']);
+        $dw->set('deploy_method', $method);
         $dw->set('user_id', $visitor['user_id']);
         $dw->set('username', $visitor['username']);
         $dw->save();
