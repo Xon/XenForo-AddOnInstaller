@@ -523,7 +523,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
     public function actionUpdateCheckAll()
     {
-        XenForo_Model::create('XenForo_Model_AddOn')->checkForUpdates();
+        $this->_getAddOnModel()->checkForUpdates();
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,

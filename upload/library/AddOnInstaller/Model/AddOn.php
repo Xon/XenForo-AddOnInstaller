@@ -311,6 +311,33 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         return (strstr($resourceUrl, 'xenforo.com/community/resources') || $resourceUrl === '');
     }
 
+    public function bulkUpdateAddOnCheck()
+    {
+        $db = $this->_getDb();
+        $addons = $db->fetchAll("
+            SELECT addon.addon_id, addon.url as update_url, coalesce(update_check.check_updates, 1) as check_updates
+            FROM xf_addon addon
+            LEFT JOIN xf_addon_update_check AS update_check ON update_check.addon_id = addon.addon_id
+            WHERE (update_check.update_url is null or update_check.update_url = '') and addon.url is not null and addon.url <> ''
+        ");
+
+        foreach($addons as $addon)
+        {
+            if (!empty(trim($addon['update_url'])) && $addOnModel->isResourceUrl($addon['update_url']))
+            {
+                $writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
+
+                if ($addOnModel->isDwUpdate($addon['addon_id']))
+                {
+                    $writer->setExistingData($addon['addon_id']);
+                }
+
+                $writer->bulkSet($addon);
+                $writer->save();
+            }
+        }
+    }
+
     public function getUpdateCheckByAddOnId($addOnId)
     {
         return $this->_getDb()->fetchRow('

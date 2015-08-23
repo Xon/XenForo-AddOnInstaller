@@ -58,6 +58,7 @@ class AddOnInstaller_DataWriter_Updater extends XenForo_DataWriter
      */
     protected function _verifyUpdateUrl(&$resourceUrl)
     {
+        $resourceUrl = trim($resourceUrl);
         if ($this->_getAddOnModel()->isResourceUrl($resourceUrl))
         {
             $resourceUrl = rtrim($resourceUrl, '/');
