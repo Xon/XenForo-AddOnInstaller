@@ -323,11 +323,11 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
         foreach($addons as $addon)
         {
-            if (!empty(trim($addon['update_url'])) && $addOnModel->isResourceUrl($addon['update_url']))
+            if (!empty(trim($addon['update_url'])) && $this->isResourceUrl($addon['update_url']))
             {
                 $writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
 
-                if ($addOnModel->isDwUpdate($addon['addon_id']))
+                if ($this->isDwUpdate($addon['addon_id']))
                 {
                     $writer->setExistingData($addon['addon_id']);
                 }
@@ -492,7 +492,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
         $downloadUrl = $downloadButton->current()->getAttribute('href');
 
-        if (!$addOnModel->isDownloadUrl($downloadUrl))
+        if (!$this->isDownloadUrl($downloadUrl))
         {
             throw new XenForo_Exception(new XenForo_Phrase('no_download_url_found_maybe_paid'), true);
         }
