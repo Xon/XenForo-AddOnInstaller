@@ -667,4 +667,21 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             XenForo_Link::buildAdminLink('add-ons/update-check')
         );
     }
+
+    public function actionRebuildCaches()
+    {
+        if ($this->isConfirmedPost())
+        {
+            $caches = $this->_getAddOnModel()->rebuildAddOnCaches();
+
+            return XenForo_CacheRebuilder_Abstract::getRebuilderResponse(
+                $this, $caches,
+                XenForo_Link::buildAdminLink('add-ons')
+            );
+        }
+        else
+        {           
+            return $this->responseView('AddOnInstaller_ViewAdmin_Install', 'addon_rebuild_caches');
+        }
+    }
 }
