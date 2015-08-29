@@ -36,10 +36,11 @@ class AddOnInstaller_Listener
 
     public static function addon_deployment(&$deployMethods)
     {
-        $builtins = XenForo_Application::getOptions()->builtin_deploymentmethods;
-        foreach($builtins as $deployMethod => $enabled)
+        $builtins = explode(',', XenForo_Application::getOptions()->builtin_deploymentmethods);
+        foreach($builtins as $deployMethod)
         {
-            if ($enabled)
+            $deployMethod = trim($deployMethod);
+            if ($deployMethod)
             {
                 $deployMethods[$deployMethod] = 'AddOnInstaller_Model_Deployment_' . $deployMethod;
             }

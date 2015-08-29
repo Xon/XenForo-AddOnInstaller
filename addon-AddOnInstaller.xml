@@ -475,7 +475,7 @@ This class MUST be defined as follows:</p>
     <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnModel" active="1" hint="XenForo_Model_AddOn" description="XenForo_Model_AddOn"/>
   </code_event_listeners>
   <cron>
-    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[17],"minutes":[19]}]]></entry>
+    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[17],"minutes":[16]}]]></entry>
   </cron>
   <email_templates/>
   <email_template_modifications/>
@@ -488,12 +488,10 @@ This class MUST be defined as follows:</p>
       <sub_options></sub_options>
       <relation group_id="addOnInstaller" display_order="10"/>
     </option>
-    <option option_id="builtin_deploymentmethods" edit_format="checkbox" data_type="array" can_backup="1">
-      <default_value></default_value>
-      <edit_format_params>copy=copy
-ftp=ftp</edit_format_params>
-      <sub_options>copy
-ftp</sub_options>
+    <option option_id="builtin_deploymentmethods" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>copy,ftp</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
       <relation group_id="addOnInstaller_debug" display_order="10"/>
     </option>
     <option option_id="deploymentmethod" edit_format="callback" data_type="string" can_backup="1">
@@ -590,7 +588,11 @@ timeout</sub_options>
     <phrase title="option_addoninstaller_check_update" version_id="1020000" version_string="1.2.0"><![CDATA[Check for Add-on Updates]]></phrase>
     <phrase title="option_addoninstaller_check_update_explain" version_id="1020000" version_string="1.2.0"><![CDATA[Periodically check for add-on updates.]]></phrase>
     <phrase title="option_builtin_deploymentmethods" version_id="1030001" version_string="1.3.0"><![CDATA[Built-in add-on deployment methods]]></phrase>
-    <phrase title="option_builtin_deploymentmethods_explain" version_id="1030001" version_string="1.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_builtin_deploymentmethods_explain" version_id="1030001" version_string="1.3.0"><![CDATA[A comma delimited list of built-in deployment methods. Supported:
+<ol>
+<li>copy</i>
+<li>ftp</i>
+</ol>]]></phrase>
     <phrase title="option_deploymentmethod" version_id="1030001" version_string="1.3.0"><![CDATA[Deployment]]></phrase>
     <phrase title="option_deploymentmethod_explain" version_id="1030001" version_string="1.3.0"><![CDATA[File deployment configuration]]></phrase>
     <phrase title="option_deploymentmethod_ftp" version_id="1030001" version_string="1.3.0"><![CDATA[FTP Config]]></phrase>
