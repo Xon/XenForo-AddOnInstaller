@@ -34,9 +34,11 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     protected $_annoyingFilenames = array(
         '.svn' => true,
         '.git' => true,
-        '.DS_Store' => true, // mac specific
+        '.gitmodules' => true,
+        '.gitignore' => true,
+        '.ds_store' => true, // mac specific
         '.localized' => true, // mac specific
-        'Thumbs.db' => true, // windows specific
+        'thumbs.db' => true, // windows specific
     );
 
     /**
@@ -70,7 +72,7 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
             }
 
             $filename = $dirInfo->getFilename();
-            if (isset($this->_annoyingFilenames[$filename]))
+            if (isset($this->_annoyingFilenames[strtolower($filename)]))
             {
                 continue;
             }
