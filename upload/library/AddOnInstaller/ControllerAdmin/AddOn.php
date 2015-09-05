@@ -28,6 +28,23 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         return $this->responseView('AddOnInstaller_ViewAdmin_Install', 'addon_install_auto', $viewParams);
     }
 
+    public function actionInstallOrder()
+    {
+        $this->_assertPostOnly();
+
+        $addon_install_batch_id = $this->_input->filterSingle('addon_install_batch_id', XenForo_Input::UINT);
+        $order = $this->_input->filterSingle('order', XenForo_Input::ARRAY_SIMPLE);
+
+        $batch = $this->_assertInstallBatchOpen($addon_install_batch_id);
+
+        $this->_getAddOnModel()->massUpdateInstallOrder($addon_install_batch_id, $order);
+
+        return $this->responseRedirect(
+            XenForo_ControllerResponse_Redirect::SUCCESS,
+            XenForo_Link::buildAdminLink('add-ons/install-upgrade', array(), array('addon_install_batch_id' => $addon_install_batch_id))
+        );
+    }
+
     public function _assertInstallBatchOpen($addon_install_batch_id)
     {
         if (!$addon_install_batch_id)
@@ -680,7 +697,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             );
         }
         else
-        {           
+        {
             return $this->responseView('AddOnInstaller_ViewAdmin_Install', 'addon_rebuild_caches');
         }
     }

@@ -721,4 +721,40 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
         parent::rebuildAddOnCaches();
     }
+
+    public function massUpdateInstallOrder($addon_install_batch_id, $order)
+    {
+        $sqlOrder = '';
+        $db = $this->_getDb();
+        $args = array();
+
+        foreach ($order AS $displayOrder => $data)
+        {
+            $addon_install_batch_entry_id = is_array($data) ? intval($data[0]) : intval($data);
+            if (empty($addon_install_batch_entry_id))
+            {
+                continue;
+            }
+            $displayOrder = (int)$displayOrder;
+
+            $args[] = $addon_install_batch_entry_id;
+            $args[] = $displayOrder;
+            $sqlOrder .= "WHEN ? THEN ? \n";
+        }
+
+        if (empty($args))
+        {
+            return;
+        }
+
+        $args[] = $addon_install_batch_id;
+
+        $db->query('
+            UPDATE xf_addon_install_batch_entry SET
+                install_order = CASE addon_install_batch_entry_id
+                ' . $sqlOrder . '
+                ELSE 0 END
+            WHERE addon_install_batch_id = ?
+        ', $args);
+    }
 }
