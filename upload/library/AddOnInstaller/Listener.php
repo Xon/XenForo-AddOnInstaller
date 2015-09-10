@@ -40,6 +40,10 @@ class AddOnInstaller_Listener
         foreach($builtins as $deployMethod)
         {
             $deployMethod = trim($deployMethod);
+            if ($deployMethod == 'ftp' && !extension_loaded('ftp'))
+            {
+                continue;
+            }
             if ($deployMethod)
             {
                 $deployMethods[$deployMethod] = 'AddOnInstaller_Model_Deployment_' . $deployMethod;
