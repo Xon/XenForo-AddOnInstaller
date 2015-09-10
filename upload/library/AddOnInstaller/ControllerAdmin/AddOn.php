@@ -119,7 +119,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 $addOnModel->saveRmCredentials($username, $password);
             }
 
-            $options = XenForo_Application::get('options');
+            $options = XenForo_Application::getOptions();
 
             if (!$username && !$password)
             {
@@ -416,7 +416,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         $start = microtime(true);
         $caches = array();
         $installed_addons = false;
-        $options = XenForo_Application::get('options');
+        $options = XenForo_Application::getOptions();
         $options->set('addoninstaller_supress_cache_rebuild', true);
         try
         {
@@ -431,7 +431,6 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 {
                     continue;
                 }
-                $installed_addons = true;
 
                 $xmlFile = array(
                     'path' => $entry['xml_file'],
@@ -491,14 +490,14 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         catch(Exception $e)
         {
             $options->set('addoninstaller_supress_cache_rebuild', false);
-            if ($installed_addons)
+            if ($options->addoninstaller_cache_rebuild_required)
             {
                 $addOnModel->rebuildAddOnCaches();
             }
             throw $e;
         }
         $options->set('addoninstaller_supress_cache_rebuild', false);
-        if ($installed_addons)
+        if ($options->addoninstaller_cache_rebuild_required)
         {
             $addOnModel->rebuildAddOnCaches();
         }

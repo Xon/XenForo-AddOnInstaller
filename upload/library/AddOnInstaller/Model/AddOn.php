@@ -713,8 +713,10 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
      */
     public function rebuildAddOnCaches()
     {
-        if (XenForo_Application::get('options')->addoninstaller_supress_cache_rebuild)
+        $options = XenForo_Application::getOptions();
+        if ($options->addoninstaller_supress_cache_rebuild)
         {
+            $options->set('addoninstaller_cache_rebuild_required', true);
             $this->getModelFromCache('XenForo_Model_CodeEvent')->rebuildEventListenerCache();
             return;
         }
