@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.3.0 Alpha3" version_id="1030003" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
+<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.3.0 Alpha 4" version_id="1030004" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
   <admin_navigation>
     <navigation navigation_id="AddonInstallLog" parent_navigation_id="addOns" display_order="300" link="add-ons/install-log" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="InstallUpgrade" parent_navigation_id="addOns" display_order="100" link="add-ons/install-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
@@ -475,7 +475,7 @@ This class MUST be defined as follows:</p>
     <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnModel" active="1" hint="XenForo_Model_AddOn" description="XenForo_Model_AddOn"/>
   </code_event_listeners>
   <cron>
-    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[17],"minutes":[16]}]]></entry>
+    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[0],"minutes":[0]}]]></entry>
   </cron>
   <email_templates/>
   <email_template_modifications/>
@@ -558,13 +558,13 @@ timeout</sub_options>
     <phrase title="confirm_rebuild_of_add_on_caches" version_id="1030000" version_string="1.3.0"><![CDATA[Confirm rebuild of add-on caches]]></phrase>
     <phrase title="confirm_skip_current_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[Confirm Ignore Current Update]]></phrase>
     <phrase title="confirm_skip_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[Confirm Ignore Update]]></phrase>
-    <phrase title="connection_timeout" version_id="1030001" version_string="1.3.0"><![CDATA[Timeout]]></phrase>
+    <phrase title="connection_timeout" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Timeout]]></phrase>
     <phrase title="could_not_create_directory_permissions" version_id="1000470" version_string="1.0.4"><![CDATA[Could not create temporary install directory. Please verify permissions are correct to write to the install/addons directory.]]></phrase>
     <phrase title="cron_entry_AddOnInstallerUpdateCheck" version_id="6" version_string="1.0.0"><![CDATA[Automatic Check for Add-on Updates]]></phrase>
-    <phrase title="deployment_method_copy" version_id="1030001" version_string="1.3.0"><![CDATA[File copy]]></phrase>
-    <phrase title="deployment_method_ftp" version_id="1030001" version_string="1.3.0"><![CDATA[FTP]]></phrase>
-    <phrase title="deployment_method_x_not_implemented" version_id="1030000" version_string="1.3.0"><![CDATA[Deployment method {method} is not implemented.]]></phrase>
-    <phrase title="ftp_passive_mode" version_id="1030001" version_string="1.3.0"><![CDATA[Passive Mode]]></phrase>
+    <phrase title="deployment_method_copy" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[File copy]]></phrase>
+    <phrase title="deployment_method_ftp" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[FTP]]></phrase>
+    <phrase title="deployment_method_x_not_implemented" version_id="1030000" version_string="1.3.0 Alpha 4"><![CDATA[Deployment method {method} is not implemented.]]></phrase>
+    <phrase title="ftp_passive_mode" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Passive Mode]]></phrase>
     <phrase title="install_from_file_on_resource_manager" version_id="9" version_string="1.0.0 RC3"><![CDATA[Resource Manager URL]]></phrase>
     <phrase title="install_or_upgrade" version_id="2" version_string="0.2"><![CDATA[Install or Upgrade]]></phrase>
     <phrase title="install_this_update" version_id="6" version_string="1.0.0"><![CDATA[Install this Update]]></phrase>
@@ -580,26 +580,28 @@ timeout</sub_options>
     <phrase title="last_check" version_id="6" version_string="1.0.0"><![CDATA[Last Check]]></phrase>
     <phrase title="login_to_xenforo_has_failed" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Login to XenForo.com has failed. Make sure you login with your XenForo username and password.]]></phrase>
     <phrase title="most_recent_update" version_id="6" version_string="1.0.0"><![CDATA[Most Recent Update: {title} (version: {version})]]></phrase>
-    <phrase title="no_deployment_method_set" version_id="1030001" version_string="1.3.0"><![CDATA[No valid deployment method is set.]]></phrase>
+    <phrase title="no_deployment_method_set" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[No valid deployment method is set.]]></phrase>
     <phrase title="no_download_url_found_maybe_paid" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[No download URL could be found at the provided Resource Manager URL. Is this a paid add-on?]]></phrase>
     <phrase title="no_updates_configured" version_id="6" version_string="1.0.0"><![CDATA[No updates are configured for this add-on]]></phrase>
     <phrase title="no_upload_directory_found" version_id="1" version_string="0.1"><![CDATA[There is no upload directory found within this archive. This add-on does not support the Add-on Installer.]]></phrase>
     <phrase title="only_resource_manager_urls_are_valid" version_id="9" version_string="1.0.0 RC3"><![CDATA[Only proper Resource Manager URLs are valid]]></phrase>
     <phrase title="option_addoninstaller_check_update" version_id="1020000" version_string="1.2.0"><![CDATA[Check for Add-on Updates]]></phrase>
     <phrase title="option_addoninstaller_check_update_explain" version_id="1020000" version_string="1.2.0"><![CDATA[Periodically check for add-on updates.]]></phrase>
-    <phrase title="option_builtin_deploymentmethods" version_id="1030001" version_string="1.3.0"><![CDATA[Built-in add-on deployment methods]]></phrase>
-    <phrase title="option_builtin_deploymentmethods_explain" version_id="1030001" version_string="1.3.0"><![CDATA[A comma delimited list of built-in deployment methods. Supported:
+    <phrase title="option_builtin_deploymentmethods" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Built-in add-on deployment methods]]></phrase>
+    <phrase title="option_builtin_deploymentmethods_explain" version_id="1030004" version_string="1.3.0 Alpha4"><![CDATA[A comma delimited list of built-in deployment methods. Supported:
 <ol>
 <li>copy</i>
 <li>ftp</i>
-</ol>]]></phrase>
-    <phrase title="option_deploymentmethod" version_id="1030001" version_string="1.3.0"><![CDATA[Deployment]]></phrase>
-    <phrase title="option_deploymentmethod_explain" version_id="1030001" version_string="1.3.0"><![CDATA[File deployment configuration]]></phrase>
-    <phrase title="option_deploymentmethod_ftp" version_id="1030001" version_string="1.3.0"><![CDATA[FTP Config]]></phrase>
-    <phrase title="option_deploymentmethod_ftp_explain" version_id="1030001" version_string="1.3.0"><![CDATA[]]></phrase>
+</ol>
+<br/>
+Note; if no deployment methods are enabled, then the 'copy' deployment will be enabled.]]></phrase>
+    <phrase title="option_deploymentmethod" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Deployment]]></phrase>
+    <phrase title="option_deploymentmethod_explain" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[File deployment configuration]]></phrase>
+    <phrase title="option_deploymentmethod_ftp" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[FTP Config]]></phrase>
+    <phrase title="option_deploymentmethod_ftp_explain" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[]]></phrase>
     <phrase title="option_group_addOnInstaller" version_id="1020000" version_string="1.2.0"><![CDATA[Add-on Installer & Upgrade]]></phrase>
-    <phrase title="option_group_addOnInstaller_debug" version_id="1030001" version_string="1.3.0"><![CDATA[Add-on Installer & Upgrade Debug]]></phrase>
-    <phrase title="option_group_addOnInstaller_debug_description" version_id="1030001" version_string="1.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_group_addOnInstaller_debug" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Add-on Installer & Upgrade Debug]]></phrase>
+    <phrase title="option_group_addOnInstaller_debug_description" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[]]></phrase>
     <phrase title="option_group_addOnInstaller_description" version_id="1020000" version_string="1.2.0"><![CDATA[]]></phrase>
     <phrase title="option_xenforoRmLoginPassword" version_id="11" version_string="1.0.0 RC5"><![CDATA[XenForo Password]]></phrase>
     <phrase title="option_xenforoRmLoginPassword_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[Please remember (much like your SMTP settings) no effort is made to encrypt this sensitive credential. It is stored in the database as plain text.]]></phrase>

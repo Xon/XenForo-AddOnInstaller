@@ -261,7 +261,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         $next_phase = 'step-install';
         $start = microtime(true);
 
-        $addonDeployer = $addOnModel->getAddonDeployer($batch['deploy_method']);
+        $addonDeployer = null;
         foreach($entries as &$entry)
         {
             if (microtime(true) - $start > $this->MaximumRuntime )
@@ -371,6 +371,11 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                     }
                 }
 
+                if (empty($addonDeployer))
+                {
+                    $addonDeployer = $addOnModel->getAddonDeployer($batch['deploy_method']);
+                }
+
                 $addonDeployer->start($addOnModel);
 
                 try
@@ -406,7 +411,10 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             }
             $dw->save();
         }
-        $addonDeployer->stop();
+        if ($addonDeployer)
+        {
+            $addonDeployer->stop();
+        }
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,

@@ -1,6 +1,6 @@
 <?php
 
-class AddOnInstaller_Model_Deployment_copy extends AddOnInstaller_Model_Deployment_Abstract
+class AddOnInstaller_Model_Deployment_ftp extends AddOnInstaller_Model_Deployment_Abstract
 {
     protected $ftp = null;
     
@@ -24,10 +24,10 @@ class AddOnInstaller_Model_Deployment_copy extends AddOnInstaller_Model_Deployme
     {
         $config = XenForo_Application::getOptions()->deploymentmethod_ftp;
         $host = empty($config['host']) ? '127.0.0.1' : $config['host'];
-        $port = empty($config['port']) || inval($config['port']) == 0 ? 21 : $config['port'];
+        $port = empty($config['port']) || intval($config['port']) == 0 ? 21 : $config['port'];
         $username = empty($config['username']) ? 'anonymous' : $config['username'];
         $password = empty($config['password']) ? '' : $config['password'];
-        $timeout = empty($config['timeout']) || inval($config['port']) <= 0 ? 5 : $config['timeout'];
+        $timeout = empty($config['timeout']) || intval($config['port']) <= 0 ? 5 : $config['timeout'];
         $passive_mode = !empty($config['passive_mode']);
         
         $class = XenForo_Application::resolveDynamicClass('AddOnInstaller_FtpClient_FtpClient');

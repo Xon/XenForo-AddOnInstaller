@@ -99,6 +99,11 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     {
         $deployMethods = array();
         XenForo_CodeEvent::fire('addon_deployment', array(&$deployMethods));
+        if (empty($deployMethods))
+        {
+            $deployMethod = 'copy';
+            $deployMethods[$deployMethod] = 'AddOnInstaller_Model_Deployment_' . $deployMethod;
+        }
         return $deployMethods;
     }
 
