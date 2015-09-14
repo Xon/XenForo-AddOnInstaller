@@ -562,6 +562,7 @@ timeout</sub_options>
     <phrase title="could_not_create_directory_permissions" version_id="1000470" version_string="1.0.4"><![CDATA[Could not create temporary install directory. Please verify permissions are correct to write to the install/addons directory.]]></phrase>
     <phrase title="cron_entry_AddOnInstallerUpdateCheck" version_id="6" version_string="1.0.0"><![CDATA[Automatic Check for Add-on Updates]]></phrase>
     <phrase title="deployment_method_copy" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[File copy]]></phrase>
+    <phrase title="deployment_method_fakeCopy" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Fake file copy]]></phrase>
     <phrase title="deployment_method_ftp" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[FTP]]></phrase>
     <phrase title="deployment_method_x_not_implemented" version_id="1030000" version_string="1.3.0 Alpha 4"><![CDATA[Deployment method {method} is not implemented.]]></phrase>
     <phrase title="ftp_passive_mode" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Passive Mode]]></phrase>
@@ -591,10 +592,12 @@ timeout</sub_options>
     <phrase title="option_builtin_deploymentmethods_explain" version_id="1030004" version_string="1.3.0 Alpha4"><![CDATA[A comma delimited list of built-in deployment methods. Supported:
 <ol>
 <li>copy</i>
+<li>fakeCopy</i>
 <li>ftp</i>
 </ol>
 <br/>
-Note; if no deployment methods are enabled, then the 'copy' deployment will be enabled.]]></phrase>
+Note; if no deployment methods are enabled, then the 'copy' deployment will be enabled.<br/>
+'fakeCopy' is for testing deployment without copying files.]]></phrase>
     <phrase title="option_deploymentmethod" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Deployment]]></phrase>
     <phrase title="option_deploymentmethod_explain" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[File deployment configuration]]></phrase>
     <phrase title="option_deploymentmethod_ftp" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[FTP Config]]></phrase>
