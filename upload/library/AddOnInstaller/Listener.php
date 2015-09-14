@@ -34,6 +34,23 @@ class AddOnInstaller_Listener
         return "[$updateCount]";
     }
 
+    public static function addon_deployment(&$deployMethods)
+    {
+        $builtins = explode(',', XenForo_Application::getOptions()->builtin_deploymentmethods);
+        foreach($builtins as $deployMethod)
+        {
+            $deployMethod = trim($deployMethod);
+            if ($deployMethod == 'ftp' && !extension_loaded('ftp'))
+            {
+                continue;
+            }
+            if ($deployMethod)
+            {
+                $deployMethods[$deployMethod] = 'AddOnInstaller_Model_Deployment_' . $deployMethod;
+            }
+        }
+    }
+
     public static function load_class($class, array &$extend)
     {
         $extend[] = str_replace('XenForo_', 'AddOnInstaller_', $class) ;

@@ -95,7 +95,6 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
         $addOnModel = $this->_getAddOnModel();
         $fileTransfer = new Zend_File_Transfer_Adapter_Http();
-        $deployMethod = $this->_input->filterSingle('deploy_method', XenForo_Input::STRING);
         $resourceUrl = $this->_input->filterSingle('resource_url', XenForo_Input::STRING);
 
         $installBatch = null;
@@ -261,6 +260,8 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
 
         $next_phase = 'step-install';
         $start = microtime(true);
+
+        $addonDeployer = null;
         foreach($entries as &$entry)
         {
             if (microtime(true) - $start > $this->MaximumRuntime )
@@ -298,6 +299,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 }
             }
             $error = false;
+            $failedFiles = array();
             if (!$xmlFile)
             {
                 $error = true;
@@ -369,9 +371,16 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                     }
                 }
 
+                if (empty($addonDeployer))
+                {
+                    $addonDeployer = $addOnModel->getAddonDeployer($batch['deploy_method']);
+                }
+
+                $addonDeployer->start($addOnModel);
+
                 try
                 {
-                    $failedFiles = $addOnModel->deployFiles($batch['deploy_method'], $addOnDirs);
+                    $failedFiles = $addOnModel->deployFiles($addonDeployer, $addOnDirs);
                 }
                 catch(Exception $e)
                 {
@@ -379,6 +388,13 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                     $error = true;
                 }
             }
+            if ($failedFiles)
+            {
+                $error = true;
+                $next_phase = 'install-upgrade';
+                XenForo_Error::logException(new Exception('Failed to write to the files:'. var_export($failedFiles, true)), false);
+            }
+
             $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
             $dw->setExistingData($entry);
             if ($xmlFile)
@@ -395,8 +411,10 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             }
             $dw->save();
         }
-
-        $addOnModel->InvalidateOpCache();
+        if ($addonDeployer)
+        {
+            $addonDeployer->stop();
+        }
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,

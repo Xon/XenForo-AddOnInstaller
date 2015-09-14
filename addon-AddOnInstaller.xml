@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.3.0 Alpha3" version_id="1030003" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
+<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.3.0 Alpha 4" version_id="1030004" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
   <admin_navigation>
     <navigation navigation_id="AddonInstallLog" parent_navigation_id="addOns" display_order="300" link="add-ons/install-log" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="InstallUpgrade" parent_navigation_id="addOns" display_order="100" link="add-ons/install-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
@@ -343,12 +343,12 @@
 				<xen:else />
 					<span class="delete secondaryContent Tooltip" title="{xen:phrase no_updates_configured}">
 						<span>{xen:phrase no_updates_configured}</span>
-					</span>									
+					</span>
 				</xen:if>
 				<xen:if is="{$addOn.update_url} && {$addOn.check_updates}">
 					<a href="{xen:adminlink add-ons/update-check, $addOn}" class="check secondaryContent OverlayTrigger" title="{xen:phrase check_for_update_now}">
 						<span>{xen:phrase check_for_update_now}</span>
-					</a>						
+					</a>
 				</xen:if>
 			</xen:html>
 		</xen:listitem>
@@ -377,29 +377,55 @@
 <xen:require css="delete_confirmation.css" />
 
 <xen:form action="{xen:adminlink 'add-ons/update-skip', $addOn}" class="deleteConfirmForm AutoValidator" data-redirect="on">
-	<p>{xen:phrase please_confirm_you_want_to_skip_update_explain}</p>
+    <p>{xen:phrase please_confirm_you_want_to_skip_update_explain}</p>
 
-	<xen:submitunit save="{xen:phrase skip_this_update}" />
+    <xen:submitunit save="{xen:phrase skip_this_update}" />
 
-	<input type="hidden" name="_xfConfirm" value="1" />
+    <input type="hidden" name="_xfConfirm" value="1" />
 </xen:form>]]></template>
-    <template title="option_template_xenforoRmLoginPassword"><![CDATA[<xen:textboxunit label="{$preparedOption.title}" type="password" autocomplete="off" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
-hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$formatParams.size}" maxlength="{$formatParams.maxlength}" rows="{$formatParams.rows}" inputclass="Elastic">
+    <template title="option_deployment_select"><![CDATA[<xen:selectunit label="{$preparedOption.title}" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
+hint="{$preparedOption.hint}" inputclass="{$preparedOption.inputClass}">
+	<xen:options source="$formatParams" />
 	<xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
 	<xen:html>
-		<xen:include template="option_list_option_editlink" />
 		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
 		{xen:raw $editLink}
 	</xen:html>
+</xen:selectunit>]]></template>
+    <template title="option_template_deploymentmethod_ftp"><![CDATA[<xen:controlunit label="{$preparedOption.title}" hint="{$preparedOption.hint}">
+    <xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+    <xen:html>
+        <xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][host]" value="{$preparedOption.option_value.host}" placeholder="{xen:phrase host}" size="40" />
+        :
+        <xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][port]" value="{$preparedOption.option_value.port}" placeholder="{xen:phrase port}" size="5" />
+        <xen:textbox name="{$fieldPrefix}[{$preparedOption.option_id}][timeout]" value="{$preparedOption.option_value.timeout}" placeholder="{xen:phrase connection_timeout}" size="5" />
+	<xen:checkbox label="">
+		<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][passive]" value="1" selected="{$preparedOption.option_value.passive}" label="{xen:phrase ftp_passive_mode}" />
+	</xen:checkbox>
+        <xen:textbox autocomplete="off" name="{$fieldPrefix}[{$preparedOption.option_id}][username]" value="{$preparedOption.option_value.username}" placeholder="{xen:phrase user_name}" inputclass="Elastic" />
+        <br/>
+        <xen:textbox type="password" autocomplete="off" name="{$fieldPrefix}[{$preparedOption.option_id}][password]" value="{$preparedOption.option_value.password}" placeholder="{xen:phrase password}" inputclass="Elastic" />
+        <input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+        {xen:raw $editLink}
+    </xen:html>
+</xen:controlunit>]]></template>
+    <template title="option_template_xenforoRmLoginPassword"><![CDATA[<xen:textboxunit label="{$preparedOption.title}" type="password" autocomplete="off" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
+hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$formatParams.size}" maxlength="{$formatParams.maxlength}" rows="{$formatParams.rows}" inputclass="Elastic">
+    <xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+    <xen:html>
+        <xen:include template="option_list_option_editlink" />
+        <input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+        {xen:raw $editLink}
+    </xen:html>
 </xen:textboxunit>]]></template>
     <template title="option_template_xenforoRmLoginUsername"><![CDATA[<xen:textboxunit label="{$preparedOption.title}" autocomplete="off" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
 hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$formatParams.size}" maxlength="{$formatParams.maxlength}" rows="{$formatParams.rows}" inputclass="Elastic">
-	<xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
-	<xen:html>
-		<xen:include template="option_list_option_editlink" />
-		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
-		{xen:raw $editLink}
-	</xen:html>
+    <xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+    <xen:html>
+        <xen:include template="option_list_option_editlink" />
+        <input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+        {xen:raw $editLink}
+    </xen:html>
 </xen:textboxunit>]]></template>
   </admin_templates>
   <admin_template_modifications>
@@ -411,7 +437,7 @@ hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$fo
       <find><![CDATA[#^#]]></find>
       <replace><![CDATA[<xen:if is="{$link.navigation_id} == 'UpdateCheck'">
   <xen:if is="{$xenOptions.addoninstaller_check_update}">
-    <xen:set var="$updateCount"><xen:callback class="AddOnInstaller_Listener" method="getAddonInstallerUpdateCount" /></xen:set>   
+    <xen:set var="$updateCount"><xen:callback class="AddOnInstaller_Listener" method="getAddonInstallerUpdateCount" /></xen:set>
   <xen:else/>
     <xen:set var="$updateCount" />
   </xen:if>
@@ -420,25 +446,70 @@ hint="{$formatParams.hint}" placeholder="{$formatParams.placeholder}" size="{$fo
 $1]]></replace>
     </modification>
   </admin_template_modifications>
-  <code_events/>
+  <code_events>
+    <event event_id="addon_deployment"><![CDATA[<p>Called to fetch a list of supported add-on deployment methods.</p>
+
+<p>Callback signature:</p>
+<blockquote><code>&$deployMethods</code></blockquote>
+
+<p>Arguments:</p>
+<ol>
+	<li><code><em>array</em> $deployMethods</code> - an associative array of $methodId-$Class pairs.</li>
+</ol>
+
+<p>To use this event properly, assign <code>$deployMethods[$method] = $class'</code>. Ensure the phrase "deployment_method_$method" exists.<br/>
+This class MUST be defined as follows:</p>
+
+<pre>class My_Class_Name extends AddOnInstaller_Model_Deployment_Abstract
+{
+	// functionality to extend/override
+}</pre>
+
+<p><b>Event Hint:</b> Name of the class that is being loaded.</p>]]></event>
+  </code_events>
   <code_event_listeners>
+    <listener event_id="addon_deployment" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="addon_deployment" active="1" hint="" description="Adds built-in deployment methods"/>
     <listener event_id="container_admin_params" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="containerAdminParams" active="1" hint="" description=""/>
     <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnController" active="1" hint="XenForo_ControllerAdmin_AddOn" description="XenForo_ControllerAdmin_AddOn"/>
     <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnDataWriter" active="1" hint="XenForo_DataWriter_AddOn" description="XenForo_DataWriter_AddOn"/>
     <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnModel" active="1" hint="XenForo_Model_AddOn" description="XenForo_Model_AddOn"/>
   </code_event_listeners>
   <cron>
-    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["0"],"minutes":["0"]}]]></entry>
+    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[0],"minutes":[0]}]]></entry>
   </cron>
   <email_templates/>
   <email_template_modifications/>
   <optiongroups>
     <group group_id="addOnInstaller" display_order="21" debug_only="0"/>
+    <group group_id="addOnInstaller_debug" display_order="22" debug_only="1"/>
     <option option_id="addoninstaller_check_update" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>1</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="addOnInstaller" display_order="10"/>
+    </option>
+    <option option_id="builtin_deploymentmethods" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>copy,ftp</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller_debug" display_order="10"/>
+    </option>
+    <option option_id="deploymentmethod" edit_format="callback" data_type="string" can_backup="1">
+      <default_value>copy</default_value>
+      <edit_format_params>AddOnInstaller_Option_DeploymentMethodChooser::renderOption</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="700"/>
+    </option>
+    <option option_id="deploymentmethod_ftp" edit_format="template" data_type="array" can_backup="1">
+      <default_value>a:1:{s:7:"passive";i:1;}</default_value>
+      <edit_format_params>option_template_deploymentmethod_ftp</edit_format_params>
+      <sub_options>host
+port
+username
+password
+passive
+timeout</sub_options>
+      <relation group_id="addOnInstaller" display_order="800"/>
     </option>
     <option option_id="xenforoRmLoginPassword" edit_format="template" data_type="string" can_backup="1">
       <default_value></default_value>
@@ -487,8 +558,13 @@ $1]]></replace>
     <phrase title="confirm_rebuild_of_add_on_caches" version_id="1030000" version_string="1.3.0"><![CDATA[Confirm rebuild of add-on caches]]></phrase>
     <phrase title="confirm_skip_current_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[Confirm Ignore Current Update]]></phrase>
     <phrase title="confirm_skip_update" version_id="10" version_string="1.0.0 RC4"><![CDATA[Confirm Ignore Update]]></phrase>
+    <phrase title="connection_timeout" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Timeout]]></phrase>
     <phrase title="could_not_create_directory_permissions" version_id="1000470" version_string="1.0.4"><![CDATA[Could not create temporary install directory. Please verify permissions are correct to write to the install/addons directory.]]></phrase>
     <phrase title="cron_entry_AddOnInstallerUpdateCheck" version_id="6" version_string="1.0.0"><![CDATA[Automatic Check for Add-on Updates]]></phrase>
+    <phrase title="deployment_method_copy" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[File copy]]></phrase>
+    <phrase title="deployment_method_ftp" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[FTP]]></phrase>
+    <phrase title="deployment_method_x_not_implemented" version_id="1030000" version_string="1.3.0 Alpha 4"><![CDATA[Deployment method {method} is not implemented.]]></phrase>
+    <phrase title="ftp_passive_mode" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Passive Mode]]></phrase>
     <phrase title="install_from_file_on_resource_manager" version_id="9" version_string="1.0.0 RC3"><![CDATA[Resource Manager URL]]></phrase>
     <phrase title="install_or_upgrade" version_id="2" version_string="0.2"><![CDATA[Install or Upgrade]]></phrase>
     <phrase title="install_this_update" version_id="6" version_string="1.0.0"><![CDATA[Install this Update]]></phrase>
@@ -504,13 +580,28 @@ $1]]></replace>
     <phrase title="last_check" version_id="6" version_string="1.0.0"><![CDATA[Last Check]]></phrase>
     <phrase title="login_to_xenforo_has_failed" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Login to XenForo.com has failed. Make sure you login with your XenForo username and password.]]></phrase>
     <phrase title="most_recent_update" version_id="6" version_string="1.0.0"><![CDATA[Most Recent Update: {title} (version: {version})]]></phrase>
+    <phrase title="no_deployment_method_set" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[No valid deployment method is set.]]></phrase>
     <phrase title="no_download_url_found_maybe_paid" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[No download URL could be found at the provided Resource Manager URL. Is this a paid add-on?]]></phrase>
     <phrase title="no_updates_configured" version_id="6" version_string="1.0.0"><![CDATA[No updates are configured for this add-on]]></phrase>
     <phrase title="no_upload_directory_found" version_id="1" version_string="0.1"><![CDATA[There is no upload directory found within this archive. This add-on does not support the Add-on Installer.]]></phrase>
     <phrase title="only_resource_manager_urls_are_valid" version_id="9" version_string="1.0.0 RC3"><![CDATA[Only proper Resource Manager URLs are valid]]></phrase>
     <phrase title="option_addoninstaller_check_update" version_id="1020000" version_string="1.2.0"><![CDATA[Check for Add-on Updates]]></phrase>
     <phrase title="option_addoninstaller_check_update_explain" version_id="1020000" version_string="1.2.0"><![CDATA[Periodically check for add-on updates.]]></phrase>
+    <phrase title="option_builtin_deploymentmethods" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Built-in add-on deployment methods]]></phrase>
+    <phrase title="option_builtin_deploymentmethods_explain" version_id="1030004" version_string="1.3.0 Alpha4"><![CDATA[A comma delimited list of built-in deployment methods. Supported:
+<ol>
+<li>copy</i>
+<li>ftp</i>
+</ol>
+<br/>
+Note; if no deployment methods are enabled, then the 'copy' deployment will be enabled.]]></phrase>
+    <phrase title="option_deploymentmethod" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Deployment]]></phrase>
+    <phrase title="option_deploymentmethod_explain" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[File deployment configuration]]></phrase>
+    <phrase title="option_deploymentmethod_ftp" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[FTP Config]]></phrase>
+    <phrase title="option_deploymentmethod_ftp_explain" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[]]></phrase>
     <phrase title="option_group_addOnInstaller" version_id="1020000" version_string="1.2.0"><![CDATA[Add-on Installer & Upgrade]]></phrase>
+    <phrase title="option_group_addOnInstaller_debug" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Add-on Installer & Upgrade Debug]]></phrase>
+    <phrase title="option_group_addOnInstaller_debug_description" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[]]></phrase>
     <phrase title="option_group_addOnInstaller_description" version_id="1020000" version_string="1.2.0"><![CDATA[]]></phrase>
     <phrase title="option_xenforoRmLoginPassword" version_id="11" version_string="1.0.0 RC5"><![CDATA[XenForo Password]]></phrase>
     <phrase title="option_xenforoRmLoginPassword_explain" version_id="11" version_string="1.0.0 RC5"><![CDATA[Please remember (much like your SMTP settings) no effort is made to encrypt this sensitive credential. It is stored in the database as plain text.]]></phrase>
