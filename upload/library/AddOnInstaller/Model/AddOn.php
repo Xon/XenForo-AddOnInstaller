@@ -147,11 +147,11 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
             }
             elseif ($key == 'maybeLibrary')
             {
-                $this->_recursiveCopy($addonDeployer, $dir . '/..', './library', $failedFiles);
+                $this->_recursiveCopy($addonDeployer, dirname($dir), './library', $failedFiles);
             }
             elseif ($key == 'js' || $key == 'library' || $key == 'styles')
             {
-                $this->_recursiveCopy($addonDeployer, $dir . '/..', './' . $key, $failedFiles);
+                $this->_recursiveCopy($addonDeployer, dirname($dir), './' . $key, $failedFiles);
             }
         }
 

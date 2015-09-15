@@ -366,7 +366,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                     {
                         if (isset($commonLibDirs[$dir['file']]))
                         {
-                            $addOnDirs['maybeLibrary'] = $dir['path'] . '/..';
+                            $addOnDirs['maybeLibrary'] = dirname($dir['path']);
                         }
                     }
                 }
