@@ -240,6 +240,10 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 $dw->set('install_phase', 'extracted');
                 $dw->set('extracted_files', $newFiles);
             }
+            else
+            {
+                $next_phase = 'install-upgrade';
+            }
 
             $dw->save();
         }

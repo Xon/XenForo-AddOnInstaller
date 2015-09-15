@@ -14,10 +14,10 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         if (!$installId)
         {
             $installId = uniqid();
-            XenForo_Helper_File::createDirectory($baseDir . '/' . $installId);
         }
 
         $extractDir = $baseDir . '/' . $installId;
+        XenForo_Helper_File::createDirectory($extractDir);
 
         $zip = new Zend_Filter_Decompress(array(
             'adapter' => 'Zip',
@@ -147,11 +147,11 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
             }
             elseif ($key == 'maybeLibrary')
             {
-                $this->_recursiveCopy($addonDeployer, dirname($dir), './library', $failedFiles);
+                $this->_recursiveCopy($addonDeployer, $dir, './library', $failedFiles);
             }
             elseif ($key == 'js' || $key == 'library' || $key == 'styles')
             {
-                $this->_recursiveCopy($addonDeployer, dirname($dir), './' . $key, $failedFiles);
+                $this->_recursiveCopy($addonDeployer, $dir, './' . $key, $failedFiles);
             }
         }
 
