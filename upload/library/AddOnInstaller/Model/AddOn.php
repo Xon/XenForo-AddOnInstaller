@@ -253,7 +253,14 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
     */
     public function getXmlType($xmlFile)
     {
-        $xml = new SimpleXMLElement($xmlFile, 0, true);
+        if (method_exists('XenForo_Helper_DevelopmentXml', 'scanFile'))
+        {
+            $xml = XenForo_Helper_DevelopmentXml::scanFile($xmlFile);
+        }
+        else
+        {
+            $xml = new SimpleXMLElement($xmlFile, 0, true);
+        }
 
         $xmlDetails = array(
             'type' => (string)$xml->getName(),

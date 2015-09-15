@@ -283,9 +283,15 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 $ext = strtolower(pathinfo($file['file'], PATHINFO_EXTENSION));
                 if ($ext == 'xml')
                 {
-                    $xmlDetails = $addOnModel->getXmlType($file['path']);
-
-                    if ($xmlDetails['type'] === 'addon')
+                    try
+                    {
+                        $xmlDetails = $addOnModel->getXmlType($file['path']);
+                    }
+                    catch(Exception $e)
+                    {
+                        continue;
+                    }
+                    if (!empty($xmlDetails['type']) && $xmlDetails['type'] === 'addon')
                     {
                         $xmlFile = array(
                             'path' => $file['path'],
