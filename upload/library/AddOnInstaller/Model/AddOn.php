@@ -107,6 +107,16 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         return $deployMethods;
     }
 
+    public function getAddonDeploymentMethodPhrases()
+    {
+        $methods = $this->getAddonDeploymentMethods();
+        foreach($methods as $key => &$method)
+        {
+            $method = new XenForo_Phrase('deployment_method_' . $key);
+        }
+        return $methods;
+    }
+
     /**
     * Gets the specific class which implements a deployment method
     *
@@ -805,5 +815,17 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
                 ELSE 0 END
             WHERE addon_install_batch_id = ?
         ', $args);
+    }
+
+    public function prepareInstallBatch(array $addonbatch)
+    {
+        $method = empty($addonbatch['deploy_method'])
+                  ? XenForo_Application::getOptions()->deploymentmethod
+                  : $addonbatch['deploy_method'];
+        if ($method)
+        {
+            $addonbatch['deploymentMethod'] = new XenForo_Phrase('deployment_method_' . $method);
+        }
+        return $addonbatch;
     }
 }

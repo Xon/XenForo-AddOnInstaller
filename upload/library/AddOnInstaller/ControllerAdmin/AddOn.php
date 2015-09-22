@@ -22,10 +22,34 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         $viewParams = array
         (
             'addon_install_batch_id' => $addon_install_batch_id,
-            'addonbatch' => $batch,
+            'addonbatch' => $addOnModel->prepareInstallBatch($batch),
             'addons' => $entries,
+            'deploymentMethods' => $addOnModel->getAddonDeploymentMethodPhrases(),
         );
         return $this->responseView('AddOnInstaller_ViewAdmin_Install', 'addon_install_auto', $viewParams);
+    }
+
+    public function actionDeploymentMethod()
+    {
+        $this->_assertPostOnly();
+
+        $addon_install_batch_id = $this->_input->filterSingle('addon_install_batch_id', XenForo_Input::UINT);
+        $method = $this->_input->filterSingle('deployment_method', XenForo_Input::STRING);
+
+        $batch = $this->_assertInstallBatchOpen($addon_install_batch_id);
+
+        // if this works, then the method is valid
+        $this->_getAddOnModel()->getAddonDeployer($method);
+
+        $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
+        $dw->setExistingData($batch);
+        $dw->set('deploy_method', $method);
+        $dw->save();
+
+        return $this->responseRedirect(
+            XenForo_ControllerResponse_Redirect::SUCCESS,
+            XenForo_Link::buildAdminLink('add-ons/install-upgrade', array(), array('addon_install_batch_id' => $addon_install_batch_id))
+        );
     }
 
     public function actionInstallOrder()
@@ -96,8 +120,10 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         $addOnModel = $this->_getAddOnModel();
         $fileTransfer = new Zend_File_Transfer_Adapter_Http();
         $resourceUrl = $this->_input->filterSingle('resource_url', XenForo_Input::STRING);
+        $method = $this->_input->filterSingle('deployment_method', XenForo_Input::STRING);
 
         $installBatch = null;
+        $addonsUploaded = 0;
 
         $addon_install_batch_id = $this->_input->filterSingle('addon_install_batch_id', XenForo_Input::UINT);
         if ($addon_install_batch_id)
@@ -145,6 +171,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 @unlink($newTempFile);
                 throw $e;
             }
+            $addonsUploaded++;
         }
         if ($fileTransfer->isUploaded('upload_file_oldskool') || $fileTransfer->isUploaded('upload_file'))
         {
@@ -154,6 +181,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 {
                     $fileName = $fileInfo['tmp_name'];
                     $addOnModel->addInstallBatchEntry($fileInfo['name'], $fileName, $installBatch);
+                    $addonsUploaded++;
                 }
             }
         }
@@ -165,6 +193,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             {
                 copy($fileName, $newTempFile);
                 $addOnModel->addInstallBatchEntry($fileName, $newTempFile, $installBatch);
+                $addonsUploaded++;
             }
             catch(Exception $e)
             {
@@ -173,10 +202,22 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             }
         }
 
+        // if this works, then the method is valid
+        $this->_getAddOnModel()->getAddonDeployer($method);
+        if ($addonsUploaded == 0 && $installBatch == null)
+        {
+            $installBatch = $addOnModel->addInstallBatch();
+        }
+
         if ($installBatch === null)
         {
             return $this->responseError(new XenForo_Phrase('an_unexpected_error_occurred_while_extracting_addons'));
         }
+
+        $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
+        $dw->setExistingData($installBatch->get('addon_install_batch_id'));
+        $dw->set('deploy_method', $method);
+        $dw->save();
 
         $next_phase = $this->isConfirmedPost()
                         ? 'step-extract'
