@@ -281,6 +281,10 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 $dw->set('install_phase', 'extracted');
                 $dw->set('extracted_files', $newFiles);
             }
+            else
+            {
+                $next_phase = 'install-upgrade';
+            }
 
             $dw->save();
         }
@@ -413,7 +417,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                     {
                         if (isset($commonLibDirs[$dir['file']]))
                         {
-                            $addOnDirs['maybeLibrary'] = $dir['path'] . '/..';
+                            $addOnDirs['maybeLibrary'] = dirname($dir['path']);
                         }
                     }
                 }
