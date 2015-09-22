@@ -202,11 +202,14 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             }
         }
 
-        // if this works, then the method is valid
-        $this->_getAddOnModel()->getAddonDeployer($method);
-        if ($addonsUploaded == 0 && $installBatch == null)
+        if ($method)
         {
-            $installBatch = $addOnModel->addInstallBatch();
+            // if this works, then the method is valid
+            $this->_getAddOnModel()->getAddonDeployer($method);
+            if ($addonsUploaded == 0 && $installBatch == null)
+            {
+                $installBatch = $addOnModel->addInstallBatch();
+            }
         }
 
         if ($installBatch === null)
@@ -214,10 +217,13 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             return $this->responseError(new XenForo_Phrase('an_unexpected_error_occurred_while_extracting_addons'));
         }
 
-        $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
-        $dw->setExistingData($installBatch->get('addon_install_batch_id'));
-        $dw->set('deploy_method', $method);
-        $dw->save();
+        if ($method)
+        {
+            $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
+            $dw->setExistingData($installBatch->get('addon_install_batch_id'));
+            $dw->set('deploy_method', $method);
+            $dw->save();
+        }
 
         $next_phase = $this->isConfirmedPost()
                         ? 'step-extract'
