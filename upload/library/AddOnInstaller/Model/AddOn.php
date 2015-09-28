@@ -440,7 +440,9 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
     public function checkForUpdate($addOn, $checkOnly = false)
     {
-        $client = XenForo_Helper_Http::getClient($addOn['update_url'] . '/updates');
+        $client = XenForo_Helper_Http::getClient($addOn['update_url'] . '/updates', array(
+            'useragent' => 'AddOnInstaller_11388'
+        ));
         $request = $client->request('GET');
 
         $dom = new Zend_Dom_Query($request->getBody());
@@ -519,7 +521,9 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
     protected function downloadResourceManagerRelease($username, $password, $resourceUrl)
     {
-        $client = XenForo_Helper_Http::getClient('https://xenforo.com/community/login/login');
+        $client = XenForo_Helper_Http::getClient('https://xenforo.com/community/login/login', array(
+            'useragent' => 'AddOnInstaller_11388'
+        ));
 
         $client->setCookieJar();
 
