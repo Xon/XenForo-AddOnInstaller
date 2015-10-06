@@ -528,16 +528,18 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 }
                 catch(Exception $e)
                 {
-                    XenForo_Error::logException($e, false);
-                    $error = true;
+                    // for some reason calling logException does not work here
+                    $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
+                    $dw->setExistingData($entry);
+                    $dw->set('in_error', true);
+                    $dw->save();
+                    $next_phase = 'install-upgrade';
+                    throw $e;
                 }
+
                 $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
                 $dw->setExistingData($entry);
-                $dw->set('in_error', $error);
-                if (!$error)
-                {
-                    $dw->set('install_phase', 'installed');
-                }
+                $dw->set('install_phase', 'installed');
                 $dw->save();
 
                 $data = array(
