@@ -271,12 +271,12 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 }
                 catch(Exception $e)
                 {
-                    XenForo_Error::logException($e, false);
+                    XenForo_Error::logException($e);
                 }
             }
             else
             {
-                XenForo_Error::logException(new Exception("Expected ".$entry['original_filename']." to be a zip"), false);
+                XenForo_Error::logException(new Exception("Expected ".$entry['original_filename']." to be a zip"));
             }
 
             $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
@@ -360,7 +360,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             if (!$xmlFile)
             {
                 $error = true;
-                XenForo_Error::logException(new XenForo_Exception(new XenForo_Phrase('a_valid_installable_xml_not_found')), false);
+                XenForo_Error::logException(new XenForo_Exception(new XenForo_Phrase('a_valid_installable_xml_not_found')));
             }
             else
             {
@@ -441,7 +441,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 }
                 catch(Exception $e)
                 {
-                    XenForo_Error::logException($e, false);
+                    XenForo_Error::logException($e);
                     $error = true;
                 }
             }
@@ -449,7 +449,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             {
                 $error = true;
                 $next_phase = 'install-upgrade';
-                XenForo_Error::logException(new Exception('Failed to write to the files:'. var_export($failedFiles, true)), false);
+                XenForo_Error::logException(new Exception('Failed to write to the files:'. var_export($failedFiles, true)));
             }
 
             $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
@@ -528,12 +528,24 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                 }
                 catch(Exception $e)
                 {
-                    // for some reason calling logException does not work here
+                    // explicitly rollback any active transaction
+                    try
+                    {
+                        $db = XenForo_Application::getDb();
+                        if ($db->getConnection())
+                        {
+                            if ($rollbackTransactions)
+                            {
+                                @XenForo_Db::rollbackAll($db);
+                            }
+                        }
+                    }
+                    catch(Exception $e){}
+                    // log the error, and then re-throw as the list of add-ons may have dependancies on all the add-ons being installed in the correct order
                     $dw = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatchEntry");
                     $dw->setExistingData($entry);
                     $dw->set('in_error', true);
                     $dw->save();
-                    $next_phase = 'install-upgrade';
                     throw $e;
                 }
 
