@@ -534,10 +534,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
                         $db = XenForo_Application::getDb();
                         if ($db->getConnection())
                         {
-                            if ($rollbackTransactions)
-                            {
-                                @XenForo_Db::rollbackAll($db);
-                            }
+                            @XenForo_Db::rollbackAll($db);
                         }
                     }
                     catch(Exception $e){}
