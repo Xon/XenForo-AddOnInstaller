@@ -473,6 +473,9 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
             $addonDeployer->stop();
         }
 
+        // ensure the opcache is invalidated to ensure templates rebuild correctly.
+        $addonModel->InvalidateOpCache();
+
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
             XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id))
