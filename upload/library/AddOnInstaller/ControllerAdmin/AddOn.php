@@ -474,7 +474,7 @@ class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_Controlle
         }
 
         // ensure the opcache is invalidated to ensure templates rebuild correctly.
-        $addonModel->InvalidateOpCache();
+        $addOnModel->InvalidateOpCache();
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
