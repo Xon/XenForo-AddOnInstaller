@@ -51,21 +51,15 @@ class AddOnInstaller_Listener
         }
     }
 
-    public static function template_file_change(string $file, string $action)
+    static $addOnModel = null;
+
+    public static function template_file_change($file, $action)
     {
-        if ($action == 'delete')
+        if (self::$addOnModel == null)
         {
-            // can only invalidate existing files.
-            opcache_reset();
-            if (function_exists('opcache_reset'))
-            {
-                opcache_reset();
-            }
+            self::$addOnModel = XenForo_Model::create('XenForo_Model_AddOn');
         }
-        else if (function_exists('opcache_invalidate'))
-        {
-            opcache_invalidate($file, true);
-        }
+        self::$addOnModel->InvalidateFileOpCache($file, $action);
     }
 
     public static function load_class($class, array &$extend)

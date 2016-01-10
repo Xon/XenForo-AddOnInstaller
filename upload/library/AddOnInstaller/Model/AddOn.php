@@ -170,8 +170,6 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
 
     /**
     * Reset the entire opcache
-    *
-    * @param string $file The file to reset.
     */
     public function InvalidateOpCache()
     {
@@ -179,6 +177,29 @@ class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
         if (function_exists('opcache_reset'))
         {
             opcache_reset();
+        }
+    }
+
+    /**
+    * Reset the opcache for a single file
+    *
+    * @param string $file The file to reset.
+    * @param string $action The action for the file.
+    */
+    public function InvalidateFileOpCache($file, $action)
+    {
+        if ($action == 'delete')
+        {
+            // can only invalidate existing files.
+            opcache_reset();
+            if (function_exists('opcache_reset'))
+            {
+                opcache_reset();
+            }
+        }
+        else if (function_exists('opcache_invalidate'))
+        {
+            opcache_invalidate($file, true);
         }
     }
 
