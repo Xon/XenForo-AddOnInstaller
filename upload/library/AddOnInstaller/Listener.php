@@ -51,6 +51,23 @@ class AddOnInstaller_Listener
         }
     }
 
+    public static function template_file_change(string $file, string $action)
+    {
+        if ($action == 'delete')
+        {
+            // can only invalidate existing files.
+            opcache_reset();
+            if (function_exists('opcache_reset'))
+            {
+                opcache_reset();
+            }
+        }
+        else if (function_exists('opcache_invalidate'))
+        {
+            opcache_invalidate($file, true);
+        }
+    }
+
     public static function load_class($class, array &$extend)
     {
         $extend[] = str_replace('XenForo_', 'AddOnInstaller_', $class) ;
