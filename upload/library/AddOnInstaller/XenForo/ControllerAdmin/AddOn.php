@@ -1,6 +1,6 @@
 <?php
 
-class AddOnInstaller_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_ControllerAdmin_AddOn
+class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_XenForo_ControllerAdmin_AddOn
 {
     public function actionInstallLog()
     {

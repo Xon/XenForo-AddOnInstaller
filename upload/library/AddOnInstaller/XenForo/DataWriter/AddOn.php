@@ -1,6 +1,6 @@
 <?php
 
-class AddOnInstaller_DataWriter_AddOn extends XFCP_AddOnInstaller_DataWriter_AddOn
+class AddOnInstaller_XenForo_DataWriter_AddOn extends XFCP_AddOnInstaller_XenForo_DataWriter_AddOn
 {
     /**
      * Post-delete handling.

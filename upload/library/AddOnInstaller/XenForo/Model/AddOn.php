@@ -1,6 +1,6 @@
 <?php
 
-class AddOnInstaller_Model_AddOn extends XFCP_AddOnInstaller_Model_AddOn
+class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Model_AddOn
 {
     /**
     * Extracts the provided file path to the base directory
