@@ -10,7 +10,7 @@ abstract class AddOnInstaller_Model_Deployment_Abstract
         return $isStarted;
     }
 
-    public final function start(AddOnInstaller_Model_AddOn $addonModel)
+    public final function start(XenForo_Model_AddOn $addonModel)
     {
         if ($this->isStarted)
         {
@@ -46,7 +46,7 @@ abstract class AddOnInstaller_Model_Deployment_Abstract
     {
         if (empty($this->addonModel))
         {
-            $this->addonModel = XenForo_Model::create('AddOnInstaller_Model_AddOn');
+            $this->addonModel = XenForo_Model::create('XenForo_Model_AddOn');
         }
         return $this->addonModel;
     }
