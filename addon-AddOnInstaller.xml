@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.3.0 Alpha 6" version_id="1030006" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
+<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.3.0 Alpha 7" version_id="1030007" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
   <admin_navigation>
     <navigation navigation_id="AddonInstallLog" parent_navigation_id="addOns" display_order="300" link="add-ons/install-log" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="InstallUpgrade" parent_navigation_id="addOns" display_order="100" link="add-ons/install-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
@@ -9,7 +9,9 @@
   <admin_permissions/>
   <admin_style_properties/>
   <admin_templates>
-    <template title="addon_install_auto"><![CDATA[<xen:require css="addon_install_auto.css" />
+    <template title="addon_install_auto"><![CDATA[<xen:require css="installer_dropzone.css" />
+<xen:require js="js/dropzone-4.3.0/min/dropzone.min.js" />
+<xen:require css="addon_install_auto.css" />
 <xen:require css="filter_list.css" />
 <xen:require js="js/xenforo/filter_list.js" />
 <xen:require js="js/sortable/jquery.sortable.min.js" />
@@ -19,7 +21,9 @@
 <blockquote class="baseHtml">{xen:phrase install_upgrade_description}</blockquote>
 
 <xen:form action="{xen:adminlink 'add-ons/step-upload'}" upload="true" class="addOnInstallUpgrade">
-
+	<xen:if is="{$addon_install_batch_id}">
+	<input type="hidden" name="addon_install_batch_id" value="{$addon_install_batch_id}" />
+	</xen:if>
 
 <dl class="ctrlUnit">
 	<dt><label for="ctrl_deployment_method">{xen:phrase addoninstaller_deployment_method}:</label></dt>
@@ -63,37 +67,113 @@
 </xen:if>
 <xen:if is="!{$addonbatch.is_completed}">
 	<h2>{xen:phrase addon_installer_option1}</h2>
-	<dl class="ctrlUnit">
-		<dt><label for="ctrl_upload_file">{xen:phrase install_from_uploaded_file}/s:</label></dt>
-		<dd>
-			<input type="file" name="upload_file[]" value="" id="ctrl_upload_file" multiple="multiple" accept="application/zip">
-		</dd>
-	</dl>
-
-	<h2>{xen:phrase addon_installer_option2}</h2>
 	<xen:textboxunit label="{xen:phrase install_from_file_on_resource_manager}:" name="resource_url" explain="{xen:phrase resource_url_must_be_this_format}" />
 
 	<xen:include template="addon_install_rm_login" />
 
-	<h2>{xen:phrase addon_installer_option3}</h2>
-	<dl class="ctrlUnit">
-		<dt><label for="ctrl_upload_file_oldskool">{xen:phrase install_from_uploaded_file}/s:</label></dt>
-		<dd>
-			<input type="file" name="upload_file_oldskool[]" value="" id="ctrl_upload_file_oldskool" multiple="multiple" accept="text/xml">
-		</dd>
-	</dl>
+	<h2>{xen:phrase addon_installer_option2}</h2>
 	<xen:textboxunit label="{xen:phrase install_from_file_on_server}:" name="server_file_oldskool" />
 	
+
 	<xen:checkboxunit label="">
 		<xen:option name="_xfConfirm" selected="0">{xen:phrase addon_start_install}</xen:option>
 	</xen:checkboxunit>
 	
 	<xen:submitunit save="{xen:phrase install_or_upgrade}" />
-	<xen:if is="{$addon_install_batch_id}">
-	<input type="hidden" name="addon_install_batch_id" value="{$addon_install_batch_id}" />
-	</xen:if>
 </xen:if>
-</xen:form>]]></template>
+</xen:form>
+
+	<h2>{xen:phrase addon_installer_option3}</h2>	
+	<div class="dropzoneConfig" data-url="{xen:adminlink 'add-ons/step-upload-json'}" data-files-types='.xml,.zip'> </div>
+	<dl class="ctrlUnit"><dt></dt><dd>
+	<xen:include template="installer_upload_template" />
+	<dd></dl>
+
+
+<script>
+!function($, window, document, _undefined)
+{
+    // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
+    var previewNode = document.querySelector("#template");
+    previewNode.id = "";
+    var previewTemplate = previewNode.parentNode.innerHTML;
+    previewNode.parentNode.removeChild(previewNode);
+    
+    var $config = $('.dropzoneConfig');
+    var acceptedFiles = $config.data('files-types');
+    var url = $config.data('url');
+    var params = {_xfToken:'{$visitor.csrf_token_page}'};
+    
+    var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
+      url: url,
+      params: params,
+      thumbnailWidth: 80,
+      thumbnailHeight: 80,
+      parallelUploads: 20,
+      previewTemplate: previewTemplate,
+      autoQueue: false, // Make sure the files aren't queued until manually added
+      previewsContainer: "#previews", // Define the container to display the previews
+      clickable: ".fileinput-button", // Define the element that should be used as click trigger to select files.
+      acceptedFiles: acceptedFiles,
+    });
+    
+    myDropzone.on("addedfile", function(file) {
+      // Hookup the start button
+      file.previewElement.querySelector(".start").onclick = function() { myDropzone.enqueueFile(file); };
+    });
+    
+    // Update the total progress bar
+    myDropzone.on("totaluploadprogress", function(progress) {
+      document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
+    });
+    
+    myDropzone.on("sending", function(file) {
+      // Show the total progress bar when upload starts
+      document.querySelector("#total-progress").style.opacity = "1";
+      // And disable the start button
+      file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
+    });
+    
+    // Hide the total progress bar when nothing's uploading anymore
+    myDropzone.on("queuecomplete", function(progress) {
+      document.querySelector("#total-progress").style.opacity = "0";
+    });
+    
+    // Setup the buttons for all transfers
+    // The "add files" button doesn't need to be setup because the config
+    // `clickable` has already been specified.
+    document.querySelector("#actions .start").onclick = function() {
+      myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
+    };
+    document.querySelector("#actions .cancel").onclick = function() {
+      myDropzone.removeAllFiles(true);
+    };
+    myDropzone.on("success", function(file, ajaxData) {
+        console.log(ajaxData);
+
+			if (ajaxData.message)
+			{
+				XenForo.alert(ajaxData.message, '', 4000);
+				return;
+			}
+
+			// if a redirect message was not specified, redirect immediately
+			if (ajaxData._redirectMessage == '')
+			{
+				XenForo.submitPending = true;
+				return XenForo.redirect(ajaxData._redirectTarget);
+			}
+
+			// show the redirect message, then redirect if a redirect target was specified
+			XenForo.submitPending = true;
+			XenForo.alert(ajaxData._redirectMessage, '', 1000, $.context(function()
+			{
+				XenForo.redirect(ajaxData._redirectTarget);
+			}, this));
+    });
+}
+(jQuery, this, document);
+</script>]]></template>
     <template title="addon_install_auto.css"><![CDATA[	.FilterList .allow
 	{
 		padding: 0px!important;
@@ -399,6 +479,457 @@
 
     <input type="hidden" name="_xfConfirm" value="1" />
 </xen:form>]]></template>
+    <template title="installer_dropzone.css"><![CDATA[/*
+ * The MIT License
+ * Copyright (c) 2012 Matias Meno <m@tias.me>
+ */
+@-webkit-keyframes passing-through {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(40px);
+    -moz-transform: translateY(40px);
+    -ms-transform: translateY(40px);
+    -o-transform: translateY(40px);
+    transform: translateY(40px); }
+  30%, 70% {
+    opacity: 1;
+    -webkit-transform: translateY(0px);
+    -moz-transform: translateY(0px);
+    -ms-transform: translateY(0px);
+    -o-transform: translateY(0px);
+    transform: translateY(0px); }
+  100% {
+    opacity: 0;
+    -webkit-transform: translateY(-40px);
+    -moz-transform: translateY(-40px);
+    -ms-transform: translateY(-40px);
+    -o-transform: translateY(-40px);
+    transform: translateY(-40px); } }
+@-moz-keyframes passing-through {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(40px);
+    -moz-transform: translateY(40px);
+    -ms-transform: translateY(40px);
+    -o-transform: translateY(40px);
+    transform: translateY(40px); }
+  30%, 70% {
+    opacity: 1;
+    -webkit-transform: translateY(0px);
+    -moz-transform: translateY(0px);
+    -ms-transform: translateY(0px);
+    -o-transform: translateY(0px);
+    transform: translateY(0px); }
+  100% {
+    opacity: 0;
+    -webkit-transform: translateY(-40px);
+    -moz-transform: translateY(-40px);
+    -ms-transform: translateY(-40px);
+    -o-transform: translateY(-40px);
+    transform: translateY(-40px); } }
+@keyframes passing-through {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(40px);
+    -moz-transform: translateY(40px);
+    -ms-transform: translateY(40px);
+    -o-transform: translateY(40px);
+    transform: translateY(40px); }
+  30%, 70% {
+    opacity: 1;
+    -webkit-transform: translateY(0px);
+    -moz-transform: translateY(0px);
+    -ms-transform: translateY(0px);
+    -o-transform: translateY(0px);
+    transform: translateY(0px); }
+  100% {
+    opacity: 0;
+    -webkit-transform: translateY(-40px);
+    -moz-transform: translateY(-40px);
+    -ms-transform: translateY(-40px);
+    -o-transform: translateY(-40px);
+    transform: translateY(-40px); } }
+@-webkit-keyframes slide-in {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(40px);
+    -moz-transform: translateY(40px);
+    -ms-transform: translateY(40px);
+    -o-transform: translateY(40px);
+    transform: translateY(40px); }
+  30% {
+    opacity: 1;
+    -webkit-transform: translateY(0px);
+    -moz-transform: translateY(0px);
+    -ms-transform: translateY(0px);
+    -o-transform: translateY(0px);
+    transform: translateY(0px); } }
+@-moz-keyframes slide-in {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(40px);
+    -moz-transform: translateY(40px);
+    -ms-transform: translateY(40px);
+    -o-transform: translateY(40px);
+    transform: translateY(40px); }
+  30% {
+    opacity: 1;
+    -webkit-transform: translateY(0px);
+    -moz-transform: translateY(0px);
+    -ms-transform: translateY(0px);
+    -o-transform: translateY(0px);
+    transform: translateY(0px); } }
+@keyframes slide-in {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(40px);
+    -moz-transform: translateY(40px);
+    -ms-transform: translateY(40px);
+    -o-transform: translateY(40px);
+    transform: translateY(40px); }
+  30% {
+    opacity: 1;
+    -webkit-transform: translateY(0px);
+    -moz-transform: translateY(0px);
+    -ms-transform: translateY(0px);
+    -o-transform: translateY(0px);
+    transform: translateY(0px); } }
+@-webkit-keyframes pulse {
+  0% {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1); }
+  10% {
+    -webkit-transform: scale(1.1);
+    -moz-transform: scale(1.1);
+    -ms-transform: scale(1.1);
+    -o-transform: scale(1.1);
+    transform: scale(1.1); }
+  20% {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1); } }
+@-moz-keyframes pulse {
+  0% {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1); }
+  10% {
+    -webkit-transform: scale(1.1);
+    -moz-transform: scale(1.1);
+    -ms-transform: scale(1.1);
+    -o-transform: scale(1.1);
+    transform: scale(1.1); }
+  20% {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1); } }
+@keyframes pulse {
+  0% {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1); }
+  10% {
+    -webkit-transform: scale(1.1);
+    -moz-transform: scale(1.1);
+    -ms-transform: scale(1.1);
+    -o-transform: scale(1.1);
+    transform: scale(1.1); }
+  20% {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1); } }
+.dropzone, .dropzone * {
+  box-sizing: border-box; }
+
+.dropzone {
+  min-height: 150px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  background: white;
+  padding: 20px 20px; }
+  .dropzone.dz-clickable {
+    cursor: pointer; }
+    .dropzone.dz-clickable * {
+      cursor: default; }
+    .dropzone.dz-clickable .dz-message, .dropzone.dz-clickable .dz-message * {
+      cursor: pointer; }
+  .dropzone.dz-started .dz-message {
+    display: none; }
+  .dropzone.dz-drag-hover {
+    border-style: solid; }
+    .dropzone.dz-drag-hover .dz-message {
+      opacity: 0.5; }
+  .dropzone .dz-message {
+    text-align: center;
+    margin: 2em 0; }
+  .dropzone .dz-preview {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    margin: 16px;
+    min-height: 100px; }
+    .dropzone .dz-preview:hover {
+      z-index: 1000; }
+      .dropzone .dz-preview:hover .dz-details {
+        opacity: 1; }
+    .dropzone .dz-preview.dz-file-preview .dz-image {
+      border-radius: 20px;
+      background: #999;
+      background: linear-gradient(to bottom, #eee, #ddd); }
+    .dropzone .dz-preview.dz-file-preview .dz-details {
+      opacity: 1; }
+    .dropzone .dz-preview.dz-image-preview {
+      background: white; }
+      .dropzone .dz-preview.dz-image-preview .dz-details {
+        -webkit-transition: opacity 0.2s linear;
+        -moz-transition: opacity 0.2s linear;
+        -ms-transition: opacity 0.2s linear;
+        -o-transition: opacity 0.2s linear;
+        transition: opacity 0.2s linear; }
+    .dropzone .dz-preview .dz-remove {
+      font-size: 14px;
+      text-align: center;
+      display: block;
+      cursor: pointer;
+      border: none; }
+      .dropzone .dz-preview .dz-remove:hover {
+        text-decoration: underline; }
+    .dropzone .dz-preview:hover .dz-details {
+      opacity: 1; }
+    .dropzone .dz-preview .dz-details {
+      z-index: 20;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      font-size: 13px;
+      min-width: 100%;
+      max-width: 100%;
+      padding: 2em 1em;
+      text-align: center;
+      color: rgba(0, 0, 0, 0.9);
+      line-height: 150%; }
+      .dropzone .dz-preview .dz-details .dz-size {
+        margin-bottom: 1em;
+        font-size: 16px; }
+      .dropzone .dz-preview .dz-details .dz-filename {
+        white-space: nowrap; }
+        .dropzone .dz-preview .dz-details .dz-filename:hover span {
+          border: 1px solid rgba(200, 200, 200, 0.8);
+          background-color: rgba(255, 255, 255, 0.8); }
+        .dropzone .dz-preview .dz-details .dz-filename:not(:hover) {
+          overflow: hidden;
+          text-overflow: ellipsis; }
+          .dropzone .dz-preview .dz-details .dz-filename:not(:hover) span {
+            border: 1px solid transparent; }
+      .dropzone .dz-preview .dz-details .dz-filename span, .dropzone .dz-preview .dz-details .dz-size span {
+        background-color: rgba(255, 255, 255, 0.4);
+        padding: 0 0.4em;
+        border-radius: 3px; }
+    .dropzone .dz-preview:hover .dz-image img {
+      -webkit-transform: scale(1.05, 1.05);
+      -moz-transform: scale(1.05, 1.05);
+      -ms-transform: scale(1.05, 1.05);
+      -o-transform: scale(1.05, 1.05);
+      transform: scale(1.05, 1.05);
+      -webkit-filter: blur(8px);
+      filter: blur(8px); }
+    .dropzone .dz-preview .dz-image {
+      border-radius: 20px;
+      overflow: hidden;
+      width: 120px;
+      height: 120px;
+      position: relative;
+      display: block;
+      z-index: 10; }
+      .dropzone .dz-preview .dz-image img {
+        display: block; }
+    .dropzone .dz-preview.dz-success .dz-success-mark {
+      -webkit-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);
+      -moz-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);
+      -ms-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);
+      -o-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);
+      animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1); }
+    .dropzone .dz-preview.dz-error .dz-error-mark {
+      opacity: 1;
+      -webkit-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);
+      -moz-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);
+      -ms-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);
+      -o-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);
+      animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1); }
+    .dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-error-mark {
+      pointer-events: none;
+      opacity: 0;
+      z-index: 500;
+      position: absolute;
+      display: block;
+      top: 50%;
+      left: 50%;
+      margin-left: -27px;
+      margin-top: -27px; }
+      .dropzone .dz-preview .dz-success-mark svg, .dropzone .dz-preview .dz-error-mark svg {
+        display: block;
+        width: 54px;
+        height: 54px; }
+    .dropzone .dz-preview.dz-processing .dz-progress {
+      opacity: 1;
+      -webkit-transition: all 0.2s linear;
+      -moz-transition: all 0.2s linear;
+      -ms-transition: all 0.2s linear;
+      -o-transition: all 0.2s linear;
+      transition: all 0.2s linear; }
+    .dropzone .dz-preview.dz-complete .dz-progress {
+      opacity: 0;
+      -webkit-transition: opacity 0.4s ease-in;
+      -moz-transition: opacity 0.4s ease-in;
+      -ms-transition: opacity 0.4s ease-in;
+      -o-transition: opacity 0.4s ease-in;
+      transition: opacity 0.4s ease-in; }
+    .dropzone .dz-preview:not(.dz-processing) .dz-progress {
+      -webkit-animation: pulse 6s ease infinite;
+      -moz-animation: pulse 6s ease infinite;
+      -ms-animation: pulse 6s ease infinite;
+      -o-animation: pulse 6s ease infinite;
+      animation: pulse 6s ease infinite; }
+    .dropzone .dz-preview .dz-progress {
+      opacity: 1;
+      z-index: 1000;
+      pointer-events: none;
+      position: absolute;
+      height: 16px;
+      left: 50%;
+      top: 50%;
+      margin-top: -8px;
+      width: 80px;
+      margin-left: -40px;
+      background: rgba(255, 255, 255, 0.9);
+      -webkit-transform: scale(1);
+      border-radius: 8px;
+      overflow: hidden; }
+      .dropzone .dz-preview .dz-progress .dz-upload {
+        background: #333;
+        background: linear-gradient(to bottom, #666, #444);
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 0;
+        -webkit-transition: width 300ms ease-in-out;
+        -moz-transition: width 300ms ease-in-out;
+        -ms-transition: width 300ms ease-in-out;
+        -o-transition: width 300ms ease-in-out;
+        transition: width 300ms ease-in-out; }
+    .dropzone .dz-preview.dz-error .dz-error-message {
+      display: block; }
+    .dropzone .dz-preview.dz-error:hover .dz-error-message {
+      opacity: 1;
+      pointer-events: auto; }
+    .dropzone .dz-preview .dz-error-message {
+      pointer-events: none;
+      z-index: 1000;
+      position: absolute;
+      display: block;
+      display: none;
+      opacity: 0;
+      -webkit-transition: opacity 0.3s ease;
+      -moz-transition: opacity 0.3s ease;
+      -ms-transition: opacity 0.3s ease;
+      -o-transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease;
+      border-radius: 8px;
+      font-size: 13px;
+      top: 130px;
+      left: -10px;
+      width: 140px;
+      background: #be2626;
+      background: linear-gradient(to bottom, #be2626, #a92222);
+      padding: 0.5em 1.2em;
+      color: white; }
+      .dropzone .dz-preview .dz-error-message:after {
+        content: '';
+        position: absolute;
+        top: -6px;
+        left: 64px;
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-bottom: 6px solid #be2626; }
+]]></template>
+    <template title="installer_upload_template"><![CDATA[<div class="row" id="actions" abp="15">	
+	<div class="col-lg-7" abp="16">
+	<!-- The fileinput-button span is used to style the file input field as button -->
+	<span class="button btn-success fileinput-button dz-clickable" abp="17">
+	    <i class="fa fa-plus" abp="18"></i>
+	    <span abp="19">Add files...</span>
+	</span>
+	<button class="button btn-primary start" type="submit" abp="20">
+	    <i class="fa fa-upload" abp="21"></i>
+	    <span abp="22">Start upload</span>
+	</button>
+	<button class="button btn-warning cancel" type="reset" abp="23">
+	    <i class="fa fa-ban" abp="24"></i>
+	    <span abp="25">Cancel upload</span>
+	</button>
+	</div>
+	
+	<div class="col-lg-5" abp="26">
+	<!-- The global file processing state -->
+	<span class="fileupload-process" abp="27">
+	  <div class="progress progress-striped active" id="total-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" abp="28">
+	    <div class="progress-bar progress-bar-success" style="width: 100%;" abp="29" data-dz-uploadprogress=""></div>
+	  </div>
+	</span>
+	</div>	
+</div>
+
+<!-- HTML heavily inspired by http://blueimp.github.io/jQuery-File-Upload/ -->
+<div class="table table-striped" class="files" id="previews">
+
+  <div id="template" class="file-row">
+    <!-- This is used as the file preview template -->
+    <div>
+        <span class="preview"><img data-dz-thumbnail /></span>
+    </div>
+    <div>
+        <p class="name" data-dz-name></p>
+        <strong class="error text-danger" data-dz-errormessage></strong>
+    </div>
+    <div>
+        <p class="size" data-dz-size></p>
+        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+        </div>
+    </div>
+    <div>
+      <button class="button start">
+          <i class="fa fa-upload"></i>
+          <span>Start</span>
+      </button>
+      <button data-dz-remove class="button btn-warning cancel">
+          <i class="fa fa-ban"></i>
+          <span>Cancel</span>
+      </button>
+      <button data-dz-remove class="button btn-danger delete">
+        <i class="fa fa-trash"></i>
+        <span>Delete</span>
+      </button>
+    </div>
+  </div>
+</div>
+]]></template>
     <template title="option_deployment_select"><![CDATA[<xen:selectunit label="{$preparedOption.title}" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
 hint="{$preparedOption.hint}" inputclass="{$preparedOption.inputClass}">
 	<xen:options source="$formatParams" />
@@ -492,7 +1023,7 @@ This class MUST be defined as follows:</p>
     <listener event_id="template_file_change" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="template_file_change" active="1" hint="" description="Ensure opcache invalidation happens."/>
   </code_event_listeners>
   <cron>
-    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[0],"minutes":[0]}]]></entry>
+    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="0"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[4],"minutes":[4]}]]></entry>
   </cron>
   <email_templates/>
   <email_template_modifications/>
@@ -553,9 +1084,9 @@ timeout</sub_options>
     <phrase title="addon_error" version_id="1030000" version_string="1.3.0"><![CDATA[Has errors - Check Server Error logs.]]></phrase>
     <phrase title="addon_fully_up_to_date" version_id="6" version_string="1.0.0"><![CDATA[Add-on is fully up to date.]]></phrase>
     <phrase title="addon_installed_by_x_on_y" version_id="1030000" version_string="1.3.0"><![CDATA[- installed by {name} on {date}]]></phrase>
-    <phrase title="addon_installer_option1" version_id="5" version_string="1.0.0"><![CDATA[Option 1: <i>I have downloaded an add-on ZIP (or multiple ZIP files) to my computer</i>.]]></phrase>
-    <phrase title="addon_installer_option2" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Option 2: <i>I haven't yet downloaded the ZIP file. Get it for me.</i>]]></phrase>
-    <phrase title="addon_installer_option3" version_id="3" version_string="1.0 ALPHA 1"><![CDATA[Option 3: <i>I'm old school. I have uploaded the files myself. Here's an XML file</i>:]]></phrase>
+    <phrase title="addon_installer_option1" version_id="1030007" version_string="1.3.0 Alpha 7"><![CDATA[Option 1: <i>I haven't yet downloaded the ZIP file. Get it for me.</i>]]></phrase>
+    <phrase title="addon_installer_option2" version_id="1030007" version_string="1.3.0 Alpha 7"><![CDATA[Option 2: <i>Install a ZIP or XML from the server</i>:]]></phrase>
+    <phrase title="addon_installer_option3" version_id="1030007" version_string="1.3.0 Alpha 7"><![CDATA[Option 3: <i>Upload a ZIP or XML file, or multiple files</i>:]]></phrase>
     <phrase title="addon_install_batch_completed" version_id="1030000" version_string="1.3.0"><![CDATA[Add-on install batch is completed]]></phrase>
     <phrase title="addon_install_log" version_id="1030000" version_string="1.3.0"><![CDATA[Add-on Install Log]]></phrase>
     <phrase title="addon_start_install" version_id="1030000" version_string="1.3.0"><![CDATA[Confirm & start installing]]></phrase>

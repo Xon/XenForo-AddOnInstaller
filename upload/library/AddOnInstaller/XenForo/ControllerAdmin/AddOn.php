@@ -113,6 +113,12 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         );
     }
 
+    public function actionStepUploadJson()
+    {
+        $this->_routeMatch->setResponseType('json');
+        return $this->actionStepUpload();
+    }
+
     public function actionStepUpload()
     {
         $this->_assertPostOnly();
@@ -173,7 +179,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
             }
             $addonsUploaded++;
         }
-        if ($fileTransfer->isUploaded('upload_file_oldskool') || $fileTransfer->isUploaded('upload_file'))
+        if ($fileTransfer->isUploaded('file'))
         {
             foreach ($fileTransfer->getFileInfo() AS $fileInfo)
             {
