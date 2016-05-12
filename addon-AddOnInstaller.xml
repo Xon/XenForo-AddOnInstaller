@@ -82,7 +82,7 @@
 	<xen:submitunit save="{xen:phrase install_or_upgrade}" />
 </xen:if>
 </xen:form>
-
+<xen:if is="!{$addonbatch.is_completed}">
 	<h2>{xen:phrase addon_installer_option3}</h2>	
 	<div class="dropzoneConfig" data-url="{xen:adminlink 'add-ons/step-upload-json'}" data-files-types='.xml,.zip'> </div>
 	<dl class="ctrlUnit"><dt></dt><dd>
@@ -173,7 +173,8 @@
     });
 }
 (jQuery, this, document);
-</script>]]></template>
+</script>
+</xen:if>]]></template>
     <template title="addon_install_auto.css"><![CDATA[	.FilterList .allow
 	{
 		padding: 0px!important;
