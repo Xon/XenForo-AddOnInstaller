@@ -596,7 +596,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         fwrite($fp, $response->getRawBody());
         fclose($fp);
 
-        return array($reponse, $newTempFile, $filename);
+        return array($response, $newTempFile, $filename);
     }
 
     public function downloadResourceFromUrl($username, $password, $resourceUrl)
