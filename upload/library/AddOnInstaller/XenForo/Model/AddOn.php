@@ -396,7 +396,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
         foreach($addons as $addon)
         {
-            if (!empty(trim($addon['update_url'])) && $this->isResourceUrl($addon['update_url']))
+            if (isset($addon['update_url']) && trim($addon['update_url']) && $this->isResourceUrl($addon['update_url']))
             {
                 $writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
 
