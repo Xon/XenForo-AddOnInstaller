@@ -116,7 +116,27 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
     public function actionStepUploadJson()
     {
         $this->_routeMatch->setResponseType('json');
-        return $this->actionStepUpload();
+        try
+        {
+            return $this->actionStepUpload();
+        }
+        catch(XenForo_Exception $e)
+        {
+            if ($e->isUserPrintable())
+            {
+                $view = $this->responseView(
+                    'XenForo_ViewAdmin_Error_ServerError',
+                    'error_server_error',
+                    array('exception' => $e)
+                );
+                $view->responseCode = 500;
+                return $view;
+            }
+            else
+            {
+                throw $e;
+            }
+        }
     }
 
     public function actionStepUpload()
