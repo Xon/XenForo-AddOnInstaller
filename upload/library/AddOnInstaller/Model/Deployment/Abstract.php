@@ -7,7 +7,7 @@ abstract class AddOnInstaller_Model_Deployment_Abstract
 
     public function isStarted()
     {
-        return $isStarted;
+        return $this->isStarted;
     }
 
     public final function start(XenForo_Model_AddOn $addonModel)
