@@ -683,6 +683,28 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         return $dw;
     }
 
+    protected function createBatchDirectory($path)
+    {
+        try
+        {
+            if (!XenForo_Helper_File::createDirectory($path))
+            {
+                throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions'), true);
+            }
+        }
+        catch(Exception $e)
+        {
+            if (strpos($e->getMessage(), 'Permission denied') !== false)
+            {
+                throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions'), true);
+            }
+            else
+            {
+                throw $e;
+            }
+        }
+    }
+
     /**
     * Adds an addon to an install-batch. If the file is an XML file, it will be parsed and basic info extracted
     *
@@ -698,10 +720,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         {
             $batch = $this->addInstallBatch();
             $path = 'install/addons/' . $batch->get('addon_install_batch_id') . '/';
-            if (!XenForo_Helper_File::createDirectory($path))
-            {
-                throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions'), true);
-            }
+            $this->createBatchDirectory($path);
         }
         else
         {
@@ -710,11 +729,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
         $uniqueId = uniqid('', true);
         $newfilename = $path . $uniqueId . '.' . $extension;
-
-        if (!XenForo_Helper_File::createDirectory($path. $uniqueId . '/'))
-        {
-            throw new XenForo_Exception(new XenForo_Phrase('could_not_create_directory_permissions'), true);
-        }
+        $this->createBatchDirectory($path. $uniqueId . '/');
 
         $xmlDetails = null;
         $error = false;
