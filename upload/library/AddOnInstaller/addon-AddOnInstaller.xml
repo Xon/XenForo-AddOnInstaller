@@ -532,7 +532,7 @@ This class MUST be defined as follows:</p>
     <listener event_id="template_file_change" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="template_file_change" active="1" hint="" description="Ensure opcache invalidation happens."/>
   </code_event_listeners>
   <cron>
-    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[0],"minutes":[0]}]]></entry>
+    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[23],"minutes":[37]}]]></entry>
   </cron>
   <email_templates/>
   <email_template_modifications/>

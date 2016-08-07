@@ -157,7 +157,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
                 }
             }
 
-            list($reponse, $newTempFile, $filename) = $addOnModel->downloadResourceFromUrl($username, $password, $resourceUrl);
+            list ($reponse, $newTempFile, $filename) = $addOnModel->downloadResourceFromUrl($username, $password, $resourceUrl);
             try
             {
                 $addon_install_batch_entry_id = $addOnModel->addInstallBatchEntry($filename, $newTempFile, $installBatch);
@@ -173,7 +173,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
             }
             $addonsUploaded++;
         }
-        if ($fileTransfer->isUploaded('upload_file_oldskool') || $fileTransfer->isUploaded('upload_file'))
+        if ($fileTransfer->isUploaded('upload_file'))
         {
             foreach ($fileTransfer->getFileInfo() AS $fileInfo)
             {
@@ -185,9 +185,8 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
                 }
             }
         }
-        if ($this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING))
+        if ($fileName = $this->_input->filterSingle('server_file', XenForo_Input::STRING))
         {
-            $fileName = $this->_input->filterSingle('server_file_oldskool', XenForo_Input::STRING);
             $newTempFile = tempnam(XenForo_Helper_File::getTempDir(), 'xf');
             try
             {
@@ -225,9 +224,9 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
             $dw->save();
         }
 
-        $next_phase = $this->isConfirmedPost()
-                        ? 'step-extract'
-                        : 'install-upgrade';
+		$next_phase = $this->isConfirmedPost()
+			? 'step-extract'
+			: 'install-upgrade';
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
@@ -235,7 +234,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         );
     }
 
-    protected $MaximumRuntime = 4; // in seconds
+	protected $MaximumRuntime = 4; // in seconds
 
     public function actionStepExtract()
     {
@@ -789,4 +788,17 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
             return $this->responseView('AddOnInstaller_ViewAdmin_Install', 'addon_rebuild_caches');
         }
     }
+
+    protected function _getAddOnModel()
+	{
+		/** @var AddOnInstaller_XenForo_Model_AddOn $addOnModel */
+		$addOnModel = parent::_getAddOnModel();
+		return $addOnModel;
+	}
+}
+
+// ******************** FOR IDE AUTO COMPLETE ********************
+if (false)
+{
+	class XFCP_AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XenForo_ControllerAdmin_AddOn {}
 }

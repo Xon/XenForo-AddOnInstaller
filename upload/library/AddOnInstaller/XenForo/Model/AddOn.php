@@ -7,7 +7,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
     *
     * @param string $fileName
     *
-    * @returns something
+    * @returns string
     */
     public function extractZip($fileName, $baseDir = 'install/addons', $installId = null)
     {
@@ -50,14 +50,14 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
     */
     protected function _recursiveCopy(AddOnInstaller_Model_Deployment_Abstract $deployer, $source, $destination, array &$failedFiles)
     {
-        if(!is_dir($source))
+        if (!is_dir($source))
         {
             return false;
         }
 
-        if(!$deployer->is_dir($destination))
+        if (!$deployer->is_dir($destination))
         {
-            if(!$deployer->mkdir($destination))
+            if (!$deployer->mkdir($destination))
             {
                 $failedFiles[] = $destination;
                 return false;
@@ -65,7 +65,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         }
 
         $dir = new DirectoryIterator($source);
-        foreach($dir as $dirInfo)
+        foreach ($dir as $dirInfo)
         {
             if ($dirInfo->isDot())
             {
@@ -78,7 +78,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
                 continue;
             }
 
-            if($dirInfo->isFile())
+            if ($dirInfo->isFile())
             {
                 $newFilename = $destination . '/' . $filename;
                 if (!$deployer->copy($dirInfo->getRealPath(), $newFilename))
@@ -86,7 +86,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
                     $failedFiles[] = $newFilename;
                 }
             }
-            else if($dirInfo->isDir())
+            else if ($dirInfo->isDir())
             {
                 $this->_recursiveCopy($deployer, $dirInfo->getRealPath(), $destination . '/' . $filename, $failedFiles);
             }
@@ -110,7 +110,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
     public function getAddonDeploymentMethodPhrases()
     {
         $methods = $this->getAddonDeploymentMethods();
-        foreach($methods as $key => &$method)
+        foreach ($methods as $key => &$method)
         {
             $method = new XenForo_Phrase('deployment_method_' . $key);
         }
@@ -155,11 +155,11 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
                 $this->_recursiveCopy($addonDeployer, $dir, '.', $failedFiles);
                 break;
             }
-            elseif ($key == 'maybeLibrary')
+            else if ($key == 'maybeLibrary')
             {
                 $this->_recursiveCopy($addonDeployer, $dir, './library', $failedFiles);
             }
-            elseif ($key == 'js' || $key == 'library' || $key == 'styles')
+            else if ($key == 'js' || $key == 'library' || $key == 'styles')
             {
                 $this->_recursiveCopy($addonDeployer, $dir, './' . $key, $failedFiles);
             }
@@ -258,6 +258,8 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         $dir = new RecursiveDirectoryIterator($baseDir);
         $iterator = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::SELF_FIRST);
 
+		$files = array();
+
         foreach ($iterator AS $fileName => $fileInfo)
         {
             if (strstr($fileName, '__MACOSX'))
@@ -325,7 +327,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         {
             return false;
         }
-        elseif(!is_readable($directory))
+        else if (!is_readable($directory))
         {
             return false;
         }
@@ -335,11 +337,11 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
             while (($contents = readdir($directoryHandle)) !== false)
             {
-                if($contents != '.' && $contents != '..')
+                if ($contents != '.' && $contents != '..')
                 {
                     $path = $directory . '/' . $contents;
 
-                    if(is_dir($path))
+                    if (is_dir($path))
                     {
                         $this->deleteAll($path);
                     }
@@ -352,9 +354,9 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
             closedir($directoryHandle);
 
-            if($empty == false)
+            if ($empty == false)
             {
-                if(!rmdir($directory))
+                if (!rmdir($directory))
                 {
                     return false;
                 }
@@ -394,7 +396,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
             WHERE (update_check.update_url is null or update_check.update_url = '') and addon.url is not null and addon.url <> ''
         ");
 
-        foreach($addons as $addon)
+        foreach ($addons AS $addon)
         {
             if (isset($addon['update_url']) && trim($addon['update_url']) && $this->isResourceUrl($addon['update_url']))
             {
@@ -578,12 +580,12 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
         $response = $client->request('GET');
         $content_disposition = $response->getHeader("Content-Disposition");
-        if(preg_match('/.*filename=[\'\"]([^\'\"]+)/', $content_disposition, $matches))
+        if (preg_match('/.*filename=[\'\"]([^\'\"]+)/', $content_disposition, $matches))
         {
             $filename = $matches[1];
         }
         // if filename is not quoted, we take all until the next space
-        else if(preg_match("/.*filename=([^ ]+)/", $content_disposition, $matches))
+        else if (preg_match("/.*filename=([^ ]+)/", $content_disposition, $matches))
         {
             $filename = $matches[1];
         }
@@ -859,13 +861,19 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
     public function prepareInstallBatch(array $addonbatch)
     {
-        $method = empty($addonbatch['deploy_method'])
-                  ? XenForo_Application::getOptions()->deploymentmethod
-                  : $addonbatch['deploy_method'];
+		$method = empty($addonbatch['deploy_method'])
+			? XenForo_Application::getOptions()->deploymentmethod
+			: $addonbatch['deploy_method'];
         if ($method)
         {
             $addonbatch['deploymentMethod'] = new XenForo_Phrase('deployment_method_' . $method);
         }
         return $addonbatch;
     }
+}
+
+// ******************** FOR IDE AUTO COMPLETE ********************
+if (false)
+{
+	class XFCP_AddOnInstaller_XenForo_Model_AddOn extends XenForo_Model_AddOn {}
 }
