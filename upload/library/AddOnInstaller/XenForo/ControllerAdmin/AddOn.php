@@ -235,7 +235,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         );
     }
 
-    protected $MaximumRuntime = 30000000;
+    protected $MaximumRuntime = 4; // in seconds
 
     public function actionStepExtract()
     {
