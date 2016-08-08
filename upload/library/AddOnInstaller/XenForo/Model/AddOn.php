@@ -662,7 +662,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
             SELECT batch.*, entry.*
             FROM xf_addon_install_batch AS batch
             join xf_addon_install_batch_entry AS entry on entry.addon_install_batch_id = batch.addon_install_batch_id
-            order by batch.install_date, entry.install_order
+            order by batch.install_date desc, entry.install_order
         ", 'addon_install_batch_entry_id');
     }
 
