@@ -191,7 +191,6 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         if ($action == 'delete')
         {
             // can only invalidate existing files.
-            opcache_reset();
             if (function_exists('opcache_reset'))
             {
                 opcache_reset();
