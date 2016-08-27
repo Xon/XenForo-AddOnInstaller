@@ -515,12 +515,17 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
                     'version_string' => $entry['version_string']
                 );
 
+                $existingUrl = false;
                 $error = false;
                 try
                 {
                     $addOnExists = $addOnModel->getAddOnById($xmlFile['addon_id']);
                     if ($addOnExists)
                     {
+                        if ($addOnExists['url'])
+                        {
+                            $existingUrl = $addOnExists['url'];
+                        }
                         $addOnModel->installAddOnXmlFromFile($xmlFile['path'], $xmlFile['addon_id']);
                     }
                     else
@@ -555,17 +560,35 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
 
                 $data = array(
                     'addon_id' => $xmlFile['addon_id'],
-                    'update_url' => $addOnModel->isResourceUrl($dw->get('resource_url')) ? $dw->get('resource_url') : '',
-                    'check_updates' => 1,
                     'last_checked' => XenForo_Application::$time,
                     'latest_version' => $xmlFile['version_string']
                 );
 
                 $writer = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
 
-                if ($addOnModel->isDwUpdate($data['addon_id']))
+                $isDwUpdate = $addOnModel->isDwUpdate($data['addon_id']);
+                if ($isDwUpdate)
                 {
                     $writer->setExistingData($data['addon_id']);
+                }
+
+                $newUrl = $dw->get('resource_url');
+                if ($addOnModel->isResourceUrl($newUrl))
+                {
+                    if (!$isDwUpdate)
+                    {
+                        $data['update_url'] = $newUrl;
+                        $data['check_updates'] = 1;
+                    }
+                    else if ($existingUrl)
+                    {
+                        if ($existingUrl == $writer->get('update_url') &&
+                            $existingUrl != $newUrl)
+                        {
+                            $data['update_url'] = $newUrl;
+                            $data['check_updates'] = 1;
+                        }
+                    }
                 }
 
                 $writer->bulkSet($data);
