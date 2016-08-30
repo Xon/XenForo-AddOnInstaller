@@ -48,7 +48,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
-            XenForo_Link::buildAdminLink('add-ons/install-upgrade', array(), array('addon_install_batch_id' => $addon_install_batch_id))
+            XenForo_Link::buildAdminLink('add-ons/install-upgrade', array(), array('addon_install_batch_id' => $addon_install_batch_id, 'q' => md5(microtime(true) . $addon_install_batch_id)))
         );
     }
 
@@ -65,7 +65,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
-            XenForo_Link::buildAdminLink('add-ons/install-upgrade', array(), array('addon_install_batch_id' => $addon_install_batch_id))
+            XenForo_Link::buildAdminLink('add-ons/install-upgrade', array(), array('addon_install_batch_id' => $addon_install_batch_id, 'q' => md5(microtime(true) . $addon_install_batch_id)))
         );
     }
 
@@ -109,7 +109,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
-            XenForo_Link::buildAdminLink('add-ons/install-upgrade', array(), array('addon_install_batch_id' => $addon_install_batch_id))
+            XenForo_Link::buildAdminLink('add-ons/install-upgrade', array(), array('addon_install_batch_id' => $addon_install_batch_id, 'q' => md5(microtime(true) . $addon_install_batch_id)))
         );
     }
 
@@ -228,9 +228,10 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
 			? 'step-extract'
 			: 'install-upgrade';
 
+        $addon_install_batch_id = $installBatch->get('addon_install_batch_id');
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
-            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $installBatch->get('addon_install_batch_id')))
+            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id, 'q' => md5(microtime(true) . $addon_install_batch_id)))
         );
     }
 
@@ -296,7 +297,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
-            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id))
+            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id, 'q' => md5(microtime(true) . $addon_install_batch_id)))
         );
     }
 
@@ -477,7 +478,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
 
         return $this->responseRedirect(
             XenForo_ControllerResponse_Redirect::SUCCESS,
-            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id))
+            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id, 'q' => md5(microtime(true) . $addon_install_batch_id)))
         );
     }
 
@@ -617,7 +618,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         {
             return $this->responseRedirect(
                 XenForo_ControllerResponse_Redirect::SUCCESS,
-                XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id))
+                XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id, 'q' => md5(microtime(true) . $addon_install_batch_id)))
             );
         }
 
@@ -625,7 +626,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
 
         return XenForo_CacheRebuilder_Abstract::getRebuilderResponse(
             $this, $caches,
-            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id))
+            XenForo_Link::buildAdminLink('add-ons/' . $next_phase, array(), array('addon_install_batch_id' => $addon_install_batch_id, 'q' => md5(microtime(true) . $addon_install_batch_id)))
         );
     }
 
