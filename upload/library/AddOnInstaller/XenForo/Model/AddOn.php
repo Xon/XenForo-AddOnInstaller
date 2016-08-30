@@ -816,6 +816,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         {
             $options->set('addoninstaller_cache_rebuild_required', true);
             $this->getModelFromCache('XenForo_Model_CodeEvent')->rebuildEventListenerCache();
+            $this->getModelFromCache('XenForo_Model_Option')->rebuildOptionCache();
             return;
         }
 

@@ -496,12 +496,15 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         $installed_addons = false;
         $options = XenForo_Application::getOptions();
         $options->set('addoninstaller_supress_cache_rebuild', true);
+        // invalidate opcode cache to reduce errors when the listeners change
+        $addOnModel->InvalidateOpCache();
         try
         {
             foreach($entries as &$entry)
             {
                 if (microtime(true) - $start > $this->MaximumRuntime )
                 {
+                    $options->set('addoninstaller_cache_rebuild_required', false);
                     $next_phase = 'step-install';
                     break;
                 }
@@ -601,18 +604,19 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         }
         catch(Exception $e)
         {
-            $options->set('addoninstaller_supress_cache_rebuild', false);
             if ($options->addoninstaller_cache_rebuild_required)
             {
-                $addOnModel->rebuildAddOnCaches();
+                $options->set('addoninstaller_supress_cache_rebuild', false);
             }
+            $addOnModel->rebuildAddOnCaches();
             throw $e;
         }
-        $options->set('addoninstaller_supress_cache_rebuild', false);
+
         if ($options->addoninstaller_cache_rebuild_required)
         {
-            $addOnModel->rebuildAddOnCaches();
+            $options->set('addoninstaller_supress_cache_rebuild', false);
         }
+        $addOnModel->rebuildAddOnCaches();
 
         if ($next_phase == 'step-install')
         {
