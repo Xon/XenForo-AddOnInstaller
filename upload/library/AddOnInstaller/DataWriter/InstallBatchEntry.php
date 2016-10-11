@@ -77,6 +77,14 @@ class AddOnInstaller_DataWriter_InstallBatchEntry extends XenForo_DataWriter
         }
     }
 
+    protected function _preDelete()
+    {
+        if ($this->get('install_phase') == 'installed')
+        {
+            $this->error(new XenForo_Phrase('cannot_delete_installed_addon_install_batch_entry'));
+        }
+    }
+
     protected function _postDelete()
     {
         if ($this->batch === null)
