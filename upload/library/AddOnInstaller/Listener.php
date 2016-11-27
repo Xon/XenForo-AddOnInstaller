@@ -27,7 +27,7 @@ class AddOnInstaller_Listener
         $updateCount = 0;
         foreach ($updates AS $update)
         {
-            if ($update['check_updates'] && !empty($update['latest_version']) && $update['version_string'] != $update['latest_version'] && $update['latest_version'] != $update['skip_version'])
+            if ($update['check_updates'] && !empty($update['outstanding_update']))
             {
                 $updateCount++;
             }

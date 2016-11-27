@@ -434,13 +434,22 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
     public function getAllUpdateChecks()
     {
-        return $this->fetchAllKeyed('
+        $updates = $this->fetchAllKeyed('
             SELECT addonupdate.*, addon.*
             FROM xf_addon AS addon
             LEFT JOIN xf_addon_update_check AS addonupdate ON
                 (addon.addon_id = addonupdate.addon_id)
             ORDER BY addonupdate.check_updates DESC, addon.title ASC
         ', 'addon_id');
+
+        foreach ($updates AS &$update)
+        {
+            $update['outstanding_update'] = $update['update_url'] && !empty($update['last_checked']) && !empty($update['latest_version']) && 
+                                            $this->versionRequiresUpdate($update['latest_version'], $update['version_string']) && 
+                                            $update['latest_version'] != $update['skip_version'];
+        }
+
+        return $updates;
     }
 
     public function checkForUpdates()
@@ -458,6 +467,15 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
             }
         }
         catch (Exception $e) {XenForo_Error::Debug($e); }
+    }
+
+    public function versionRequiresUpdate($version1, $version2)
+    {
+        if (XenForo_Application::getOptions()->addoninstaller_exact_check)
+        {
+            return $version1 != $version2;
+        }
+        return version_compare($version1, $version2) > 0;
     }
 
     public function checkForUpdate($addOn, $checkOnly = false)
@@ -495,7 +513,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
         if (!$checkOnly)
         {
-            if ($addOn['version_string'] != $versionText)
+            if ($this->versionRequiresUpdate($versionText, $addOn['version_string']))
             {
                 $updates = $dom->query('.updateContainer .resourceUpdate h2 a');
 
