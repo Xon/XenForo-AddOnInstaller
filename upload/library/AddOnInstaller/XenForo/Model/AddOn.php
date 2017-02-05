@@ -444,8 +444,8 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
         foreach ($updates AS &$update)
         {
-            $update['outstanding_update'] = $update['update_url'] && !empty($update['last_checked']) && !empty($update['latest_version']) && 
-                                            $this->versionRequiresUpdate($update['latest_version'], $update['version_string']) && 
+            $update['outstanding_update'] = $update['update_url'] && !empty($update['last_checked']) && !empty($update['latest_version']) &&
+                                            $this->versionRequiresUpdate($update['latest_version'], $update['version_string']) &&
                                             $update['latest_version'] != $update['skip_version'];
         }
 
@@ -471,11 +471,21 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
     public function versionRequiresUpdate($version1, $version2)
     {
-        if (XenForo_Application::getOptions()->addoninstaller_exact_check)
+        if ($version1 == $version2)
         {
-            return $version1 != $version2;
+            return false;
         }
-        return version_compare($version1, $version2) > 0;
+        if (!XenForo_Application::getOptions()->addoninstaller_exact_check)
+        {
+            $version1 = preg_replace('/\s+/u', ' ', utf8_strtolower($version1));
+            $version2 = preg_replace('/\s+/u', ' ', utf8_strtolower($version2));
+            if ($version1 == $version2)
+            {
+                return false;
+            }
+            return version_compare($version1, $version2) > 0;
+        }
+        return true;
     }
 
     public function checkForUpdate($addOn, $checkOnly = false)
