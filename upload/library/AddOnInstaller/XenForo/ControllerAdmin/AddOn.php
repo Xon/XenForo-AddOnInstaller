@@ -332,7 +332,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
             foreach ($fileList AS $file)
             {
                 $ext = strtolower(pathinfo($file['file'], PATHINFO_EXTENSION));
-                if ($ext == 'xml')
+                if ($ext == 'xml' && !$xmlFile) // This should roughly get the first XML file and skip deeper ones
                 {
                     try
                     {
