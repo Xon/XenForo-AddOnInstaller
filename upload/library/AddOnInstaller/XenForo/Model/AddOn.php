@@ -215,20 +215,21 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         $iterator = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::SELF_FIRST);
 
         $dirs = array();
-        foreach ($iterator AS $dirName => $dirInfo)
+        foreach ($iterator AS $path => $dirInfo)
         {
-            if (strstr($dirName, '__MACOSX'))
+            $dirName = $dirInfo->getFileName();
+            if (strpos($dirName, '__MACOSX') === 0 || strpos($dirName, '.git')  === 0)
             {
                 continue;
             }
 
             if ($allowedDirs)
             {
-                if ($dirInfo->isDir() && in_array($dirInfo->getFileName(), $allowedDirs))
+                if ($dirInfo->isDir() && in_array($dirName, $allowedDirs))
                 {
                     $dirs[] = array(
-                        'file' => $dirInfo->getFileName(),
-                        'path' => $dirName
+                        'file' => $dirName,
+                        'path' => $path
                     );
                 }
             }
@@ -237,8 +238,8 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
                 if ($dirInfo->isDir())
                 {
                     $dirs[] = array(
-                        'file' => $dirInfo->getFileName(),
-                        'path' => $dirName
+                        'file' => $dirName,
+                        'path' => $path
                     );
                 }
             }
@@ -259,8 +260,9 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
 		$files = array();
 
-        foreach ($iterator AS $fileName => $fileInfo)
+        foreach ($iterator AS $path => $fileInfo)
         {
+            $fileName = $fileInfo->getFileName();
             if (strpos($fileName, '__MACOSX') === 0 || strpos($fileName, '.git')  === 0)
             {
                 continue;
@@ -269,8 +271,8 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
             if ($fileInfo->isFile())
             {
                 $files[] = array(
-                    'file' => $fileInfo->getFileName(),
-                    'path' => $fileName
+                    'file' => $fileName,
+                    'path' => $path
                 );
             }
         }
