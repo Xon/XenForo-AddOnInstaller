@@ -203,6 +203,21 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
     }
 
     /**
+    * Compares two file/dir listing entries to permit sorting
+    *
+    * @param array $a
+    * @param array $b
+    */
+    public function filenameSort($a, $b)
+    {
+        if ($a['path'] == $b['path'])
+        {
+            return 0;
+        }
+        return ($a['path'] < $b['path']) ? -1 : 1;
+    }
+
+    /**
     * Given a directory, this will recursively list all directories within it
     * If the $allowedDirs array is defined, only the directories specified will be listed.
     *
@@ -236,6 +251,8 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
                 );
             }
         }
+        // ordering of $files can be non-friendly, so sort it
+        usort($files, array($this, 'filenameSort'));
 
         return $dirs;
     }
@@ -268,6 +285,8 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
                 );
             }
         }
+        // ordering of $files can be non-friendly, so sort it
+        usort($files, array($this, 'filenameSort'));
 
         return $files;
     }
