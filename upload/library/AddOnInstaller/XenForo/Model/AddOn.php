@@ -36,6 +36,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         '.git' => true,
         '.gitmodules' => true,
         '.gitignore' => true,
+        '__macosx' => true, // mac specific
         '.ds_store' => true, // mac specific
         '.localized' => true, // mac specific
         'thumbs.db' => true, // windows specific
@@ -226,35 +227,59 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
     */
     public function getDirectoryListing($baseDir, array $allowedDirs = array())
     {
-        $dir = new RecursiveDirectoryIterator($baseDir);
-        $iterator = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::SELF_FIRST);
         $allowedDirs = array_fill_keys($allowedDirs, true);
+        return $this->recursiveFileList($baseDir, true, $allowedDirs);
+    }
 
+    protected function recursiveFileList($baseDir, $dirOnly = false, array $allowedDirs = array())
+    {
         $dirs = array();
-        foreach ($iterator AS $path => $dirInfo)
+        $contents = array();
+        $iterator = new DirectoryIterator($baseDir);
+        foreach ($iterator AS $path => $fileInfo)
         {
-            $dirName = $dirInfo->getFileName();
-            if ($allowedDirs && empty($allowedDirs[$dirName]))
+            if ($fileInfo->isDot())
             {
                 continue;
             }
-            if (strpos($dirName, '__MACOSX') === 0 || strpos($dirName, '.git')  === 0)
+            $fileName = $fileInfo->getFileName();
+            if (isset($this->_annoyingFilenames[strtolower($fileName)]))
             {
                 continue;
             }
 
-            if ($dirInfo->isDir())
+            if (!$dirOnly && $fileInfo->isFile())
             {
-                $dirs[] = array(
-                    'file' => $dirName,
-                    'path' => $path
+                $contents[] = array(
+                    'file' => $fileName,
+                    'path' => $fileInfo->getPath(). DIRECTORY_SEPARATOR . $fileName,
                 );
             }
+            else if ($fileInfo->isDir())
+            {
+                if ($allowedDirs && empty($allowedDirs[$fileName]))
+                {
+                    continue;
+                }
+                if ($dirOnly)
+                {
+                    $contents[] = array(
+                        'file' => $fileName,
+                        'path' => $fileInfo->getPath(). DIRECTORY_SEPARATOR . $fileName,
+                    );
+                }
+                $dirs[] = $fileName;
+            }
         }
-        // ordering of $files can be non-friendly, so sort it
-        usort($files, array($this, 'filenameSort'));
+        // ensure filenames are sorted sanely, rather than whatever may be on disk
+        usort($contents, array($this, 'filenameSort'));
+        sort($dirs);
+        foreach($dirs as $dir)
+        {
+            $contents = array_merge($contents, $this-> recursiveFileList($baseDir . DIRECTORY_SEPARATOR . $dir, $dirOnly, $allowedDirs));
+        }
 
-        return $dirs;
+        return $contents;
     }
 
     /**
@@ -264,31 +289,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
     */
     public function getFileListing($baseDir)
     {
-        $dir = new RecursiveDirectoryIterator($baseDir);
-        $iterator = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::SELF_FIRST);
-
-		$files = array();
-
-        foreach ($iterator AS $path => $fileInfo)
-        {
-            $fileName = $fileInfo->getFileName();
-            if (strpos($fileName, '__MACOSX') === 0 || strpos($fileName, '.git')  === 0)
-            {
-                continue;
-            }
-
-            if ($fileInfo->isFile())
-            {
-                $files[] = array(
-                    'file' => $fileName,
-                    'path' => $path
-                );
-            }
-        }
-        // ordering of $files can be non-friendly, so sort it
-        usort($files, array($this, 'filenameSort'));
-
-        return $files;
+        return $this->recursiveFileList($baseDir);
     }
 
     /**
