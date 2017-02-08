@@ -209,39 +209,31 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
     * @param string $baseDir
     * @param array $allowedDirs
     */
-    public function getDirectoryListing($baseDir, array $allowedDirs = null)
+    public function getDirectoryListing($baseDir, array $allowedDirs = array())
     {
         $dir = new RecursiveDirectoryIterator($baseDir);
         $iterator = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::SELF_FIRST);
+        $allowedDirs = array_fill_keys($allowedDirs, true);
 
         $dirs = array();
         foreach ($iterator AS $path => $dirInfo)
         {
             $dirName = $dirInfo->getFileName();
+            if ($allowedDirs && empty($allowedDirs[$dirName]))
+            {
+                continue;
+            }
             if (strpos($dirName, '__MACOSX') === 0 || strpos($dirName, '.git')  === 0)
             {
                 continue;
             }
 
-            if ($allowedDirs)
+            if ($dirInfo->isDir())
             {
-                if ($dirInfo->isDir() && in_array($dirName, $allowedDirs))
-                {
-                    $dirs[] = array(
-                        'file' => $dirName,
-                        'path' => $path
-                    );
-                }
-            }
-            else
-            {
-                if ($dirInfo->isDir())
-                {
-                    $dirs[] = array(
-                        'file' => $dirName,
-                        'path' => $path
-                    );
-                }
+                $dirs[] = array(
+                    'file' => $dirName,
+                    'path' => $path
+                );
             }
         }
 
