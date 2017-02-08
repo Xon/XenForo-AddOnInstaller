@@ -261,7 +261,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
         foreach ($iterator AS $fileName => $fileInfo)
         {
-            if (strstr($fileName, '__MACOSX'))
+            if (strpos($fileName, '__MACOSX') === 0)
             {
                 continue;
             }
