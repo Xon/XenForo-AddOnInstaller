@@ -848,6 +848,17 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         return true;
     }
 
+    public function importAddOnExtraDataFromXml(SimpleXMLElement $xml, $addOnId)
+    {
+        $options = XenForo_Application::getOptions();
+        if ($options->addoninstaller_faster_install)
+        {
+            XenForo_Application::set('nf_addoninstallimprove_installing', true);
+        }
+
+        parent::importAddOnExtraDataFromXml($xml, $addOnId);
+    }
+
     /**
      * Rebuilds all caches that are touched by add-ons.
      */
@@ -860,6 +871,47 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
             $this->getModelFromCache('XenForo_Model_CodeEvent')->rebuildEventListenerCache();
             $this->getModelFromCache('XenForo_Model_Option')->rebuildOptionCache();
             return;
+        }
+        if ($options->addoninstaller_faster_install)
+        {
+            $this->getModelFromCache('XenForo_Model_CodeEvent')->rebuildEventListenerCache();
+
+            $this->getModelFromCache('XenForo_Model_Cron')->updateMinimumNextRunTime();
+
+            $this->getModelFromCache('XenForo_Model_Option')->rebuildOptionCache();
+
+            $this->getModelFromCache('XenForo_Model_RoutePrefix')->rebuildRoutePrefixCache();
+
+            $this->getModelFromCache('XenForo_Model_StyleProperty')->rebuildPropertyCacheForAllStyles();
+
+            $this->getModelFromCache('XenForo_Model_BbCode')->rebuildBbCodeCache();
+
+            $this->getModelFromCache('XenForo_Model_ContentType')->rebuildContentTypeCache();
+
+            $this->getModelFromCache('XenForo_Model_AdminSearch')->rebuildSearchTypesCache();
+
+            $this->getModelFromCache('XenForo_Model_BbCode')->updateBbCodeParseCacheVersion();
+
+            $this->getModelFromCache('XenForo_Model_Option')->updateOption('jsLastUpdate', XenForo_Application::$time);
+
+            $atomicData = [
+                'execute' => [
+                    ['Permission', []],
+                    ['Phrase', []],
+                ]
+            ];
+
+            $changedTemplates = AddOnInstaller_Tools::getDataForRebuild();
+
+            foreach ($changedTemplates AS $info)
+            {
+                foreach ($info['classes'] AS $class)
+                {
+                    $atomicData['execute'][] = [$class, $info['data']];
+                }
+            }
+
+            XenForo_Application::defer('Atomic', $atomicData, 'addonRebuild', true);
         }
 
         parent::rebuildAddOnCaches();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.3.5" version_id="1030570" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
+<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.4.0" version_id="1040070" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
   <admin_navigation>
     <navigation navigation_id="AddonInstallLog" parent_navigation_id="addOns" display_order="300" link="add-ons/install-log" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="InstallUpgrade" parent_navigation_id="addOns" display_order="100" link="add-ons/install-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
@@ -529,10 +529,19 @@ This class MUST be defined as follows:</p>
     <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnController" active="1" hint="XenForo_ControllerAdmin_AddOn" description="XenForo_ControllerAdmin_AddOn"/>
     <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnDataWriter" active="1" hint="XenForo_DataWriter_AddOn" description="XenForo_DataWriter_AddOn"/>
     <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="extendAddOnModel" active="1" hint="XenForo_Model_AddOn" description="XenForo_Model_AddOn"/>
+    <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="load_class" active="1" hint="XenForo_Deferred_Template" description="XenForo_Deferred_Template"/>
+    <listener event_id="load_class" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="load_class" active="1" hint="XenForo_Deferred_TemplateReparse" description="XenForo_Deferred_TemplateReparse"/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="load_class" active="1" hint="XenForo_DataWriter_AdminTemplate" description="XenForo_DataWriter_AdminTemplate"/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="load_class" active="1" hint="XenForo_DataWriter_AdminTemplateModification" description="XenForo_DataWriter_AdminTemplateModification"/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="load_class" active="1" hint="XenForo_DataWriter_EmailTemplate" description="XenForo_DataWriter_EmailTemplate"/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="load_class" active="1" hint="XenForo_DataWriter_EmailTemplateModification" description="XenForo_DataWriter_EmailTemplateModification"/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="load_class" active="1" hint="XenForo_DataWriter_Template" description="XenForo_DataWriter_Template"/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="load_class" active="1" hint="XenForo_DataWriter_TemplateModification" description="XenForo_DataWriter_TemplateModification"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="load_class" active="1" hint="XenForo_Model_Template" description="XenForo_Model_Template"/>
     <listener event_id="template_file_change" execute_order="10" callback_class="AddOnInstaller_Listener" callback_method="template_file_change" active="1" hint="" description="Ensure opcache invalidation happens."/>
   </code_event_listeners>
   <cron>
-    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[18],"minutes":[34]}]]></entry>
+    <entry entry_id="AddOnInstallerUpdateCheck" cron_class="AddOnInstaller_CronEntry_UpdateCheck" cron_method="checkUpdates" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":[22],"minutes":[6]}]]></entry>
   </cron>
   <email_templates/>
   <email_template_modifications/>
@@ -550,6 +559,12 @@ This class MUST be defined as follows:</p>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="addOnInstaller" display_order="30"/>
+    </option>
+    <option option_id="addoninstaller_faster_install" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="addOnInstaller" display_order="50"/>
     </option>
     <option option_id="addoninstaller_update_confirmsbatch" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>1</default_value>
@@ -668,6 +683,8 @@ timeout</sub_options>
     <phrase title="option_addoninstaller_check_update_explain" version_id="1020000" version_string="1.2.0"><![CDATA[Periodically check for add-on updates.]]></phrase>
     <phrase title="option_addoninstaller_exact_check" version_id="1030470" version_string="1.3.4"><![CDATA[Exact version check]]></phrase>
     <phrase title="option_addoninstaller_exact_check_explain" version_id="1030470" version_string="1.3.4"><![CDATA[If enabled, does an exact string comparison rather than <a href="http://php.net/manual/en/function.version-compare.php">php-standardized version</a> comparison.]]></phrase>
+    <phrase title="option_addoninstaller_faster_install" version_id="1040070" version_string="1.4.0"><![CDATA[Faster Install]]></phrase>
+    <phrase title="option_addoninstaller_faster_install_explain" version_id="1040070" version_string="1.4.0"><![CDATA[By only recompiling changed add-on templates, installing can be dramatically faster.]]></phrase>
     <phrase title="option_addoninstaller_update_confirmsbatch" version_id="1030100" version_string="1.3.1"><![CDATA[Update checker auto-confirms batch]]></phrase>
     <phrase title="option_addoninstaller_update_confirmsbatch_explain" version_id="1030100" version_string="1.3.1"><![CDATA[If set, the install link from updater automatically confirms installing]]></phrase>
     <phrase title="option_builtin_deploymentmethods" version_id="1030004" version_string="1.3.0 Alpha 4"><![CDATA[Built-in add-on deployment methods]]></phrase>

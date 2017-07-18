@@ -804,6 +804,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
     {
         if ($this->isConfirmedPost())
         {
+            XenForo_Application::getOptions()->set('addoninstaller_faster_install', false);
             $caches = $this->_getAddOnModel()->rebuildAddOnCaches();
 
             return XenForo_CacheRebuilder_Abstract::getRebuilderResponse(
