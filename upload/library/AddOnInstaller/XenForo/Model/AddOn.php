@@ -913,6 +913,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
             }
 
             XenForo_Application::defer('Atomic', $atomicData, 'addonRebuild', true);
+            return;
         }
 
         parent::rebuildAddOnCaches();
