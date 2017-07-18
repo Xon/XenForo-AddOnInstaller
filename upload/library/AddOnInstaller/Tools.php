@@ -2,7 +2,7 @@
 
 class AddOnInstaller_Tools
 {
-    public function save()
+    public static function save()
     {
         $_changedTemplates = array();
         foreach(self::$_changedTemplates as $type => $templates)
@@ -12,7 +12,7 @@ class AddOnInstaller_Tools
         return $_changedTemplates;
     }
 
-    public function load($_changedTemplates)
+    public static function load($_changedTemplates)
     {
         if ($_changedTemplates && is_string($_changedTemplates))
         {
