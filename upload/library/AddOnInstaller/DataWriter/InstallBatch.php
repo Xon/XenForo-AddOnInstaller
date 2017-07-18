@@ -18,6 +18,7 @@ class AddOnInstaller_DataWriter_InstallBatch extends XenForo_DataWriter
                 'deploy_method'          => array('type' => self::TYPE_STRING, 'required' => true, 'maxLength' => 50),
                 'user_id'                => array('type' => self::TYPE_UINT, 'required' => true),
                 'username'               => array('type' => self::TYPE_STRING, 'required' => true, 'maxLength' => 50),
+                'changeTracking'         => array('type' => self::TYPE_SERIALIZED, 'default' => ''),
             ),
         );
     }

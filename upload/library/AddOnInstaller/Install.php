@@ -36,6 +36,7 @@ class AddOnInstaller_Install
             `deploy_method` VARCHAR(50) NOT NULL DEFAULT 'copy',
             `user_id` int(10) unsigned NOT NULL DEFAULT 0,
             `username` VARCHAR(50) NOT NULL DEFAULT '',
+            `changeTracking` blob DEFAULT null,
             PRIMARY KEY (`addon_install_batch_id`),
             KEY (`install_date`)
         ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
@@ -66,6 +67,7 @@ class AddOnInstaller_Install
         ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
 
         self::addRemoveColumn('xf_addon_update_check', 'skip_version', 'add', "varchar(30) NOT NULL DEFAULT ''", 'latest_version');
+        self::addRemoveColumn('xf_addon_install_batch', 'changeTracking', 'add', "blob DEFAULT null", 'username');
 
         if ($xml)
         {
@@ -79,7 +81,7 @@ class AddOnInstaller_Install
             }
         }
 
-        // if this addon is disabled, and then upgraded via XenForo addon upgrade proccess, 
+        // if this addon is disabled, and then upgraded via XenForo addon upgrade proccess,
         // the method that is expected to exist will not.
         $addOnModel = XenForo_Model::create("XenForo_Model_AddOn");
         if (method_exists($addOnModel, 'bulkUpdateAddOnCheck'))

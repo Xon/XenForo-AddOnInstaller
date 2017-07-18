@@ -496,6 +496,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         $installed_addons = false;
         $options = XenForo_Application::getOptions();
         $options->set('addoninstaller_supress_cache_rebuild', true);
+        AddOnInstaller_Tools::load($batch['changeTracking']);
         // invalidate opcode cache to reduce errors when the listeners change
         $addOnModel->InvalidateOpCache();
         try
@@ -607,6 +608,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
             if ($options->addoninstaller_cache_rebuild_required)
             {
                 $options->set('addoninstaller_supress_cache_rebuild', false);
+                $options->set('addoninstaller_faster_install', false);
             }
             $addOnModel->rebuildAddOnCaches();
             throw $e;
@@ -614,6 +616,10 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
 
         if ($options->addoninstaller_cache_rebuild_required)
         {
+            $dw = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
+            $dw->setExistingData($batch);
+            $dw->set('changeTracking', AddOnInstaller_Tools::save());
+            $dw->save();
             $options->set('addoninstaller_supress_cache_rebuild', false);
         }
         $addOnModel->rebuildAddOnCaches();

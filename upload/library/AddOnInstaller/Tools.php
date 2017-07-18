@@ -2,6 +2,33 @@
 
 class AddOnInstaller_Tools
 {
+    public function save()
+    {
+        $_changedTemplates = array();
+        foreach(self::$_changedTemplates as $type => $templates)
+        {
+            $_changedTemplates[$type] = array_unique($templates);
+        }
+        return $_changedTemplates;
+    }
+
+    public function load($_changedTemplates)
+    {
+        if ($_changedTemplates && is_string($_changedTemplates))
+        {
+            $_changedTemplates = @unserialize($_changedTemplates);
+        }
+        if (!is_array($_changedTemplates))
+        {
+            return;
+        }
+        // merge with any existing lists
+        foreach($_changedTemplates as $type => $templates)
+        {
+            self::$_changedTemplates[$type] = array_unique(array_merge(self::$_changedTemplates[$type], $templates));
+        }
+    }
+
     protected static $_changedTemplates = [
         'admin' => [],
         'public' => [],
