@@ -621,7 +621,7 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         {
             if (isset($batch['changeTracking']))
             {
-                $dw = XenForo_DataWriter::create('AddOnInstaller_DataWriter_Updater');
+                $dw = XenForo_DataWriter::create('AddOnInstaller_DataWriter_InstallBatch');
                 $dw->setExistingData($batch);
                 $dw->set('changeTracking', AddOnInstaller_Tools::save());
                 $dw->save();
