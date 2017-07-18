@@ -29,17 +29,17 @@ class AddOnInstaller_Tools
         }
     }
 
-    protected static $_changedTemplates = [
-        'admin' => [],
-        'public' => [],
-        'email' => []
-    ];
+    protected static $_changedTemplates = array(
+        'admin' => array(),
+        'public' => array(),
+        'email' => array(),
+    );
 
-    protected static $_typeMap = [
-        'admin' => ['AdminTemplateReparse', 'AdminTemplate'],
-        'public' => ['TemplateReparse', 'Template'],
-        'email' => ['EmailTemplateReparse', 'EmailTemplate'],
-    ];
+    protected static $_typeMap = array(
+        'admin' => array('AdminTemplateReparse', 'AdminTemplate'),
+        'public' => array('TemplateReparse', 'Template'),
+        'email' => array('EmailTemplateReparse', 'EmailTemplate'),
+    );
 
     public static function addTemplateToData($type, $templateTitle)
     {
@@ -48,7 +48,7 @@ class AddOnInstaller_Tools
 
     public static function getDataForRebuild()
     {
-        $output = [];
+        $output = array();
 
         foreach (self::$_changedTemplates AS $type => $templates)
         {
@@ -56,12 +56,12 @@ class AddOnInstaller_Tools
 
             sort($templates);
 
-            $output[] = [
+            $output[] = array(
                 'classes' => self::$_typeMap[$type],
-                'data' => [
+                'data' => array(
                     'templates' => $templates
-                ]
-            ];
+                ),
+            );
         }
 
         return $output;
