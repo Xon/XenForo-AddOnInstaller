@@ -617,19 +617,20 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
             throw $e;
         }
 
+        // changeTracking can be null, don't use isset()
+        if (array_key_exists('changeTracking', $batch))
+        {
+            $dw = XenForo_DataWriter::create('AddOnInstaller_DataWriter_InstallBatch');
+            $dw->setExistingData($batch);
+            $dw->set('changeTracking', AddOnInstaller_Tools::save());
+            $dw->save();
+        }
+        else
+        {
+            $options->set('addoninstaller_faster_install', false);
+        }
         if ($options->addoninstaller_cache_rebuild_required)
         {
-            if (isset($batch['changeTracking']))
-            {
-                $dw = XenForo_DataWriter::create('AddOnInstaller_DataWriter_InstallBatch');
-                $dw->setExistingData($batch);
-                $dw->set('changeTracking', AddOnInstaller_Tools::save());
-                $dw->save();
-            }
-            else
-            {
-                $options->set('addoninstaller_faster_install', false);
-            }
             $options->set('addoninstaller_supress_cache_rebuild', false);
         }
         $addOnModel->rebuildAddOnCaches();
