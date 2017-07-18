@@ -9,7 +9,7 @@ class AddOnInstaller_DataWriter_InstallBatch extends XenForo_DataWriter
     */
     protected function _getFields()
     {
-        return array(
+        $fields = array(
             'xf_addon_install_batch' => array(
                 'addon_install_batch_id' => array('type' => self::TYPE_UINT, 'autoIncrement' => true),
                 'install_date'           => array('type' => self::TYPE_UINT, 'required' => true, 'default' => XenForo_Application::$time),
@@ -18,9 +18,13 @@ class AddOnInstaller_DataWriter_InstallBatch extends XenForo_DataWriter
                 'deploy_method'          => array('type' => self::TYPE_STRING, 'required' => true, 'maxLength' => 50),
                 'user_id'                => array('type' => self::TYPE_UINT, 'required' => true),
                 'username'               => array('type' => self::TYPE_STRING, 'required' => true, 'maxLength' => 50),
-                'changeTracking'         => array('type' => self::TYPE_SERIALIZED, 'default' => null),
             ),
         );
+        if (AddOnInstaller_Install::doesColumnExist('xf_addon_install_batch', 'changeTracking'))
+        {
+            $fields['xf_addon_install_batch']['changeTracking'] = array('type' => self::TYPE_SERIALIZED, 'default' => null);
+        }
+        return $fields;
     }
 
     /**
