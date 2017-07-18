@@ -843,6 +843,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         $installBatch = XenForo_DataWriter::create("AddOnInstaller_DataWriter_InstallBatch");
         $installBatch->setExistingData($batch);
         $installBatch->set('is_completed', $all_installed);
+        //$installBatch->set('changeTracking', null);
         $installBatch->save();
 
         return true;
@@ -894,12 +895,12 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
             $this->getModelFromCache('XenForo_Model_Option')->updateOption('jsLastUpdate', XenForo_Application::$time);
 
-            $atomicData = [
-                'execute' => [
-                    ['Permission', []],
-                    ['Phrase', []],
-                ]
-            ];
+            $atomicData = array(
+                'execute' => array(
+                    array('Permission', array()),
+                    array('Phrase', array()),
+                ),
+            );
 
             $changedTemplates = AddOnInstaller_Tools::getDataForRebuild();
 
