@@ -92,6 +92,7 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
             }
         }
 
+        $compiledRemove = array();
         if ($complete)
         {
             $compiledRemove = $db->fetchAll("
@@ -105,10 +106,6 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
                 $db->delete('xf_template_compiled',
                     "style_id = " . $db->quote($remove['style_id']) . " AND title = " . $db->quote($remove['title'])
                 );
-                if (XenForo_Application::get('options')->templateFiles)
-                {
-                    XenForo_Template_FileHandler::delete($remove['title'], $remove['style_id'], null);
-                }
             }
 
             $this->getModelFromCache('XenForo_Model_Style')->updateAllStylesLastModifiedDate();
@@ -116,6 +113,13 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
         }
 
         XenForo_Db::commit($db);
+        if (XenForo_Application::get('options')->templateFiles)
+        {
+            foreach($compiledRemove as $remove)
+            {
+                XenForo_Template_FileHandler::delete($remove['title'], $remove['style_id'], null);
+            }
+        }
 
         if ($complete)
         {
