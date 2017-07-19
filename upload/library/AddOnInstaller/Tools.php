@@ -35,7 +35,7 @@ class AddOnInstaller_Tools
         }
         // merge with any existing lists
         foreach($_changeTracking as $type => $value)
-        {                
+        {
             if (isset(self::$_typeMap[$type]) && isset(self::$_changeTracking[$type]) && is_array(self::$_changeTracking[$type]))
             {
                 self::$_changeTracking[$type] = array_unique(array_merge(self::$_changeTracking[$type], $value));
@@ -44,7 +44,7 @@ class AddOnInstaller_Tools
             {
                 self::$_changeTracking[$type] = $value;
             }
-                
+
         }
     }
 
@@ -52,7 +52,7 @@ class AddOnInstaller_Tools
         'admin' => array(),
         'public' => array(),
         'email' => array(),
-        'permissionHash' => null, 
+        'permissionHash' => null,
     );
 
     protected static $_typeMap = array(
@@ -65,7 +65,7 @@ class AddOnInstaller_Tools
     {
         self::$_changeTracking['permissionHash'] = $hash;
     }
-    
+
     public static function getPermissionsHash()
     {
         return self::$_changeTracking['permissionHash'];
