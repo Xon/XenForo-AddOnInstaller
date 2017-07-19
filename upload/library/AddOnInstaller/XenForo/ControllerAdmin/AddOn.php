@@ -496,8 +496,25 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         $installed_addons = false;
         $options = XenForo_Application::getOptions();
         $options->set('addoninstaller_supress_cache_rebuild', true);
-        if (isset($batch['changeTracking']))
+        // changeTracking can be null, don't use isset()
+        if (array_key_exists('changeTracking', $batch))
         {
+            if (is_string($batch['changeTracking']))
+            {
+                $batch['changeTracking'] = array();
+            }
+            else if (is_string($batch['changeTracking']))
+            {
+                $batch['changeTracking'] = @unserialize($batch['changeTracking']);
+            }
+            if (empty($batch['changeTracking']['permissionHash']))
+            {
+                $dw = XenForo_DataWriter::create('AddOnInstaller_DataWriter_InstallBatch');
+                $dw->setExistingData($batch);
+                $batch['changeTracking']['permissionHash'] = $addOnModel->getPermissionsHash();
+                $dw->set('changeTracking', $batch);
+                $dw->save();
+            }
             AddOnInstaller_Tools::load($batch['changeTracking']);
         }
         // invalidate opcode cache to reduce errors when the listeners change
@@ -622,7 +639,8 @@ class AddOnInstaller_XenForo_ControllerAdmin_AddOn extends XFCP_AddOnInstaller_X
         {
             $dw = XenForo_DataWriter::create('AddOnInstaller_DataWriter_InstallBatch');
             $dw->setExistingData($batch);
-            $dw->set('changeTracking', AddOnInstaller_Tools::save());
+            $batch['changeTracking'] = AddOnInstaller_Tools::save();
+            $dw->set('changeTracking', $batch['changeTracking']);
             $dw->save();
         }
         else

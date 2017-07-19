@@ -726,6 +726,13 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         return $dw;
     }
 
+    public function getPermissionsHash()
+    {
+        $permissionModel = $this->getModelFromCache('XenForo_Model_Permission');
+        $hash = array($permissionModel->getAllPermissionEntriesGrouped(), $permissionModel->getAllPermissionsGrouped());
+        return sha1(serialize($hash));
+    }
+
     protected function createBatchDirectory($path)
     {
         try
@@ -896,11 +903,14 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
             $this->getModelFromCache('XenForo_Model_Option')->updateOption('jsLastUpdate', XenForo_Application::$time);
 
             $atomicData = array(
-                'execute' => array(
-                    array('Permission', array()),
-                    array('Phrase', array()),
-                ),
+                'execute' => array(),
             );
+
+            if ($this->getPermissionsHash() != AddOnInstaller_Tools::getPermissionsHash())
+            {
+                $atomicData['execute'][] = array('Permission', array());
+            }
+            $atomicData['execute'][] = array('Phrase', array());
 
             $changedTemplates = AddOnInstaller_Tools::getDataForRebuild();
 

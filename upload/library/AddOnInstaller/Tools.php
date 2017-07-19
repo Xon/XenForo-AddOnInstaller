@@ -4,35 +4,55 @@ class AddOnInstaller_Tools
 {
     public static function save()
     {
-        $_changedTemplates = array();
-        foreach(self::$_changedTemplates as $type => $templates)
+        $_changeTracking = array();
+        foreach(self::$_changeTracking as $key => $values)
         {
-            $_changedTemplates[$type] = array_unique($templates);
+            if (isset(self::$_typeMap[$key]) && is_array($values))
+            {
+                $_changeTracking[$key] = array_unique($values);
+                if (empty($_changeTracking[$key]))
+                {
+                    unset($_changeTracking[$key]);
+                }
+            }
+            else
+            {
+                $_changeTracking[$key] = $values;
+            }
         }
-        return $_changedTemplates;
+        return $_changeTracking;
     }
 
-    public static function load($_changedTemplates)
+    public static function load($_changeTracking)
     {
-        if ($_changedTemplates && is_string($_changedTemplates))
+        if ($_changeTracking && is_string($_changeTracking))
         {
-            $_changedTemplates = @unserialize($_changedTemplates);
+            $_changeTracking = @unserialize($_changeTracking);
         }
-        if (!is_array($_changedTemplates))
+        if (!is_array($_changeTracking))
         {
             return;
         }
         // merge with any existing lists
-        foreach($_changedTemplates as $type => $templates)
-        {
-            self::$_changedTemplates[$type] = array_unique(array_merge(self::$_changedTemplates[$type], $templates));
+        foreach($_changeTracking as $type => $value)
+        {                
+            if (isset(self::$_typeMap[$type]) && isset(self::$_changeTracking[$type]) && is_array(self::$_changeTracking[$type]))
+            {
+                self::$_changeTracking[$type] = array_unique(array_merge(self::$_changeTracking[$type], $value));
+            }
+            else if (array_key_exists($type, self::$_changeTracking))
+            {
+                self::$_changeTracking[$type] = $value;
+            }
+                
         }
     }
 
-    protected static $_changedTemplates = array(
+    protected static $_changeTracking = array(
         'admin' => array(),
         'public' => array(),
         'email' => array(),
+        'permissionHash' => null, 
     );
 
     protected static $_typeMap = array(
@@ -41,17 +61,31 @@ class AddOnInstaller_Tools
         'email' => array('EmailTemplateReparse', 'EmailTemplate'),
     );
 
+    public static function setPermissionsHash($hash)
+    {
+        self::$_changeTracking['permissionHash'] = $hash;
+    }
+    
+    public static function getPermissionsHash()
+    {
+        return self::$_changeTracking['permissionHash'];
+    }
+
     public static function addTemplateToData($type, $templateTitle)
     {
-        self::$_changedTemplates[$type][] = $templateTitle;
+        self::$_changeTracking[$type][] = $templateTitle;
     }
 
     public static function getDataForRebuild()
     {
         $output = array();
 
-        foreach (self::$_changedTemplates AS $type => $templates)
+        foreach (self::$_changeTracking AS $type => $templates)
         {
+            if (empty(self::$_typeMap[$type]))
+            {
+                continue;
+            }
             $templates = array_unique($templates);
 
             sort($templates);
