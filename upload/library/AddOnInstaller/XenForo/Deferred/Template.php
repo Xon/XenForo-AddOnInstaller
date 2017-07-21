@@ -9,12 +9,13 @@ class AddOnInstaller_XenForo_Deferred_Template extends XFCP_AddOnInstaller_XenFo
             return parent::execute($deferred, $data, $targetRunTime, $status);
         }
 
-        $data = array_merge([
+        $data = array_merge(array(
             'startStyle' => 0,
+            'startTemplate' => null,
             'position' => 0,
             'mapped' => false,
-            'templates' => []
-        ], $data);
+            'templates' => array(),
+        ), $data);
 
         /* @var $templateModel AddOnInstaller_XenForo_Model_Template */
         $templateModel = XenForo_Model::create('XenForo_Model_Template');
@@ -54,7 +55,8 @@ class AddOnInstaller_XenForo_Deferred_Template extends XFCP_AddOnInstaller_XenFo
             if ($result)
             {
                 $data['startStyle'] = $result[0];
-                $data['templates'] = $result[1];
+                $data['startTemplate'] = $result[1];
+                $data['templates'] = $result[2];
             }
             $data['position']++;
 

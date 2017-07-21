@@ -11,6 +11,7 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
         sort($styleIds);
 
         $lastStyle = 0;
+        $lastTemplate = null;
         $startTime = microtime(true);
         $complete = true;
 
@@ -26,10 +27,15 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
             $lastStyle = $styleId;
             $lastTemplate = null;
 
-            $templates = $this->getTemplatesInStyleByTitles($templates, $styleId);
-            foreach ($templates AS $key => $template)
+            $fullTemplates = $this->getTemplatesInStyleByTitles($templates, $styleId);
+            ksort($fullTemplates);
+            foreach ($fullTemplates AS $key => $template)
             {
-                unset($templates[$key]);
+                if ($lastTemplate && stcmp($key, $lastTemplate) < 0)
+                {
+                    continue;
+                }
+                $lastTemplate = $key;
 
                 $this->reparseTemplate($template, false);
 
@@ -49,7 +55,7 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
         }
         else
         {
-            return [$lastStyle, $templates];
+            return array($lastStyle, $lastTemplate, $templates);
         }
     }
 
@@ -62,6 +68,7 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
         sort($styleIds);
 
         $lastStyle = 0;
+        $lastTemplate = null;
         $startTime = microtime(true);
         $complete = true;
 
@@ -75,12 +82,17 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
             }
 
             $lastStyle = $styleId;
-            $lastTemplate = 0;
+            $lastTemplate = null;
 
-            $templates = $this->getTemplatesInStyleByTitles($templates, $styleId);
-            foreach ($templates AS $key => $template)
+            $fullTemplates = $this->getTemplatesInStyleByTitles($templates, $styleId);
+            ksort($fullTemplates);
+            foreach ($fullTemplates AS $key => $template)
             {
-                unset($templates[$key]);
+                if ($lastTemplate && stcmp($key, $lastTemplate) < 0)
+                {
+                    continue;
+                }
+                $lastTemplate = $key;
 
                 $this->compileNamedTemplateInStyleTree($template['title'], $template['style_id']);
 
@@ -127,7 +139,7 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
         }
         else
         {
-            return array($lastStyle, $templates);
+            return array($lastStyle, $lastTemplate, $templates);
         }
     }
 }
