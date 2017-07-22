@@ -31,7 +31,7 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
             ksort($fullTemplates);
             foreach ($fullTemplates AS $key => $template)
             {
-                if ($lastTemplate && stcmp($key, $lastTemplate) < 0)
+                if ($lastTemplate && strcmp($key, $lastTemplate) < 0)
                 {
                     continue;
                 }
@@ -88,7 +88,7 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
             ksort($fullTemplates);
             foreach ($fullTemplates AS $key => $template)
             {
-                if ($lastTemplate && stcmp($key, $lastTemplate) < 0)
+                if ($lastTemplate && strcmp($key, $lastTemplate) < 0)
                 {
                     continue;
                 }
