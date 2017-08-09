@@ -381,7 +381,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
     public function isDownloadUrl($downloadUrl)
     {
-        $pattern = '#(resources/[a-z0-9_\-]+\.[0-9]+/download\?version=[0-9]+)#';
+        $pattern = '#(resources\/[a-z0-9_\-]+\.[0-9]+\/(version\/[0-9]+\/)?download)#';
 
         preg_match($pattern, $downloadUrl, $matches);
 
@@ -591,19 +591,19 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
         $client->setCookieJar();
 
-        $client->setParameterPost(array('login' => $username, 'password' => $password, 'redirect' => $resourceUrl));
+        $client->setParameterPost(array('login' => $username, 'password' => $password, '_xfRedirect' => $resourceUrl));
 
         $login = $client->request('POST');
 
         $dom = new Zend_Dom_Query($login->getBody());
-        $loggedIn = $dom->query('html .LoggedIn');
+        $loggedIn = $dom->query('html[data-logged-in="true"]');
 
         if (!$loggedIn->count())
         {
             throw new XenForo_Exception(new XenForo_Phrase('login_to_xenforo_has_failed'), true);
         }
 
-        $downloadButton = $dom->query('.downloadButton a');
+        $downloadButton = $dom->query('a.button--icon--download');
 
         if (!$downloadButton->count())
         {
@@ -617,7 +617,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
             throw new XenForo_Exception(new XenForo_Phrase('no_download_url_found_maybe_paid'), true);
         }
 
-        $client->setUri('https://xenforo.com/community/' . $downloadUrl);
+        $client->setUri('https://xenforo.com' . $downloadUrl);
 
         $response = $client->request('GET');
         $content_disposition = $response->getHeader("Content-Disposition");
