@@ -511,7 +511,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
         $dom = new Zend_Dom_Query($request->getBody());
 
-        $version = $dom->query('h1 .muted');
+        $version = $dom->query('h1 .u-muted');
 
         if (!$version->count())
         {
@@ -539,7 +539,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         {
             if ($this->versionRequiresUpdate($versionText, $addOn['version_string']))
             {
-                $updates = $dom->query('.updateContainer .resourceUpdate h2 a');
+                $updates = $dom->query('.js-resourceUpdate h2 a');
 
                 $updateData = array(
                     'update' => false
@@ -547,14 +547,14 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
 
                 if ($updates->count())
                 {
-                    $updateUrl = 'https://xenforo.com/community/' . $updates->current()->getAttribute('href');
+                    $updateUrl = 'https://xenforo.com' . $updates->current()->getAttribute('href');
 
                     $client->setUri($updateUrl);
 
                     $dom->setDocumentHtml($client->request('GET')->getBody());
 
-                    $updateTitle = $dom->query('.resourceUpdate .textHeading a')->current()->textContent;
-                    $updateText = $dom->query('.resourceUpdate article .messageText');
+                    $updateTitle = $dom->query('.js-resourceUpdate .block-textHeader a')->current()->textContent;
+                    $updateText = $dom->query('.js-resourceUpdate blockquote .message-body');
                     $updateText = $updateText->getDocument()->saveXML($updateText->current());
 
                     $updateData = array(
