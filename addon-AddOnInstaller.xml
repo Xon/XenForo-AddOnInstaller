@@ -74,7 +74,7 @@
 		<ul class="installPanes">
 			<li id="file">
 				<xen:controlunit label="{xen:phrase install_from_uploaded_file}/s:">
-					<input type="file" name="upload_file[]" value="" id="ctrl_upload_file" multiple="multiple" accept=".zip,.xml" class="textCtrl">
+					<input type="file" name="upload_file[]" value="" id="ctrl_upload_file" multiple="multiple" accept=".zip,.xml,application/zip,text/xml,application/xml" class="textCtrl">
 					<p class="explain">{xen:phrase browse_for_one_or_more_xml_or_zip_files_to_install_upgrade_from}</p>
 				</xen:controlunit>
 				
