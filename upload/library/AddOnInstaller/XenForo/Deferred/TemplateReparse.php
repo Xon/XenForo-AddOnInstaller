@@ -29,7 +29,7 @@ class AddOnInstaller_XenForo_Deferred_TemplateReparse extends XFCP_AddOnInstalle
             return false;
         }
 
-        $result = $templateModel->reparseNamedTemplates($data['templates'], $targetRunTime, $data['startStyle']);
+        $result = $templateModel->reparseNamedTemplates($data['templates'], $targetRunTime, $data['startStyle'], $data['startTemplate']);
 
         if ($result === null)
         {

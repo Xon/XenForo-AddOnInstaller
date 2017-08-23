@@ -39,7 +39,7 @@ class AddOnInstaller_XenForo_Deferred_Template extends XFCP_AddOnInstaller_XenFo
 
         if (!$targetRunTime || $maxExec > 1)
         {
-            $result = $templateModel->compileNamedTemplates($data['templates'], $maxExec, $data['startStyle']);
+            $result = $templateModel->compileNamedTemplates($data['templates'], $maxExec, $data['startStyle'], $data['startTemplate']);
         }
         else
         {
