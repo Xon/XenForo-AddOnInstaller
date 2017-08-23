@@ -46,18 +46,15 @@ class AddOnInstaller_XenForo_Deferred_Template extends XFCP_AddOnInstaller_XenFo
             $result = false;
         }
 
-        if ($result === true)
+        if ($result === null)
         {
             return true;
         }
         else
         {
-            if ($result)
-            {
-                $data['startStyle'] = $result[0];
-                $data['startTemplate'] = $result[1];
-                $data['templates'] = $result[2];
-            }
+            $data['startStyle'] = $result[0];
+            $data['startTemplate'] = $result[1];
+            $data['templates'] = $result[2];
             $data['position']++;
 
             return $data;

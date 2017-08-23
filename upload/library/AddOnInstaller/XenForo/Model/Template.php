@@ -51,7 +51,7 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
 
         if ($complete)
         {
-            return true;
+            return null;
         }
         else
         {
@@ -135,7 +135,7 @@ class AddOnInstaller_XenForo_Model_Template extends XFCP_AddOnInstaller_XenForo_
 
         if ($complete)
         {
-            return true;
+            return null;
         }
         else
         {
