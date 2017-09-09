@@ -177,7 +177,11 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
         // opcache
         if (function_exists('opcache_reset'))
         {
-            opcache_reset();
+            @opcache_reset();
+        }
+        if (function_exists('apc_clear_cache'))
+        {
+            @apc_clear_cache();
         }
     }
 
@@ -191,15 +195,26 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
     {
         if ($action == 'delete')
         {
+            if (function_exists('apc_delete_file'))
+            {
+                @apc_delete_file($file);
+            }
             // can only invalidate existing files.
             if (function_exists('opcache_reset'))
             {
-                opcache_reset();
+                @opcache_reset();
             }
         }
-        else if (function_exists('opcache_invalidate'))
+        else 
         {
-            opcache_invalidate($file, true);
+            if (function_exists('opcache_invalidate'))
+            {
+                @opcache_invalidate($file, true);
+            }
+            if (function_exists('apc_delete_file'))
+            {
+                @apc_delete_file($file);
+            }
         }
     }
 
