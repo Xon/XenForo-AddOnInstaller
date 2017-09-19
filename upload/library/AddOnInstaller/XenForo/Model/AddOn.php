@@ -149,20 +149,26 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
     {
         // deploy the files
         $failedFiles = array();
+        if (isset($addOnDirs['upload']))
+        {
+            $this->_recursiveCopy($addonDeployer, $addOnDirs['upload'], '.', $failedFiles);
+            return $failedFiles;
+        }
+
         foreach ($addOnDirs AS $key => $dir)
         {
-            if ($key == 'upload')
+            switch ($key)
             {
-                $this->_recursiveCopy($addonDeployer, $dir, '.', $failedFiles);
-                break;
-            }
-            else if ($key == 'maybeLibrary')
-            {
-                $this->_recursiveCopy($addonDeployer, $dir, './library', $failedFiles);
-            }
-            else if ($key == 'js' || $key == 'library' || $key == 'styles')
-            {
-                $this->_recursiveCopy($addonDeployer, $dir, './' . $key, $failedFiles);
+                case 'maybeLibrary':
+                    $this->_recursiveCopy($addonDeployer, $dir, './library', $failedFiles);
+                    break;
+                case 'js':
+                case 'library':
+                case 'styles':
+                    $this->_recursiveCopy($addonDeployer, $dir, './' . $key, $failedFiles);
+                    break;
+                default:
+                    throw new Exception('Unexpected add-on file key:'.$key);
             }
         }
 
@@ -205,7 +211,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
                 @opcache_reset();
             }
         }
-        else 
+        else
         {
             if (function_exists('opcache_invalidate'))
             {
@@ -272,11 +278,7 @@ class AddOnInstaller_XenForo_Model_AddOn extends XFCP_AddOnInstaller_XenForo_Mod
             }
             else if ($fileInfo->isDir())
             {
-                if ($allowedDirs && empty($allowedDirs[$fileName]))
-                {
-                    continue;
-                }
-                if ($dirOnly)
+                if ($dirOnly && (!$allowedDirs || !empty($allowedDirs[$fileName])))
                 {
                     $contents[] = array(
                         'file' => $fileName,
