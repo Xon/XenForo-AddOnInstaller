@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.4.0" version_id="1040070" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
+<addon addon_id="AddOnInstaller" title="Add-on Install &amp; Upgrade" version_string="1.4.3" version_id="1040370" url="https://xenforo.com/community/resources/add-on-install-upgrade.960/" install_callback_class="AddOnInstaller_Install" install_callback_method="installer" uninstall_callback_class="AddOnInstaller_Install" uninstall_callback_method="uninstaller">
   <admin_navigation>
     <navigation navigation_id="AddonInstallLog" parent_navigation_id="addOns" display_order="300" link="add-ons/install-log" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="InstallUpgrade" parent_navigation_id="addOns" display_order="100" link="add-ons/install-upgrade" admin_permission_id="addOn" debug_only="0" hide_no_children="0"/>
@@ -74,7 +74,7 @@
 		<ul class="installPanes">
 			<li id="file">
 				<xen:controlunit label="{xen:phrase install_from_uploaded_file}/s:">
-					<input type="file" name="upload_file[]" value="" id="ctrl_upload_file" multiple="multiple" accept=".zip,.xml" class="textCtrl">
+					<input type="file" name="upload_file[]" value="" id="ctrl_upload_file" multiple="multiple" accept=".zip,.xml,application/zip,text/xml,application/xml" class="textCtrl">
 					<p class="explain">{xen:phrase browse_for_one_or_more_xml_or_zip_files_to_install_upgrade_from}</p>
 				</xen:controlunit>
 				
@@ -561,7 +561,7 @@ This class MUST be defined as follows:</p>
       <relation group_id="addOnInstaller" display_order="30"/>
     </option>
     <option option_id="addoninstaller_faster_install" edit_format="onoff" data_type="boolean" can_backup="1">
-      <default_value>1</default_value>
+      <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="addOnInstaller" display_order="50"/>
